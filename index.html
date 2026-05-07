@@ -1,349 +1,240 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#2563eb" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Interzoo Guide" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <title>Interzoo 참관 가이드</title>
-  <style>
-    :root {
-      --bg:#f6f8fb; --card:#ffffff; --ink:#14213d; --muted:#64748b;
-      --line:#e2e8f0; --brand:#2563eb; --brand-dark:#1e40af; --soft:#eff6ff;
-      --green:#16a34a; --orange:#f59e0b; --red:#ef4444; --shadow:0 12px 30px rgba(15,23,42,.08);
-      --radius:18px;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", Roboto, Arial, sans-serif; background:var(--bg); color:var(--ink); line-height:1.55; }
-    a { color: inherit; }
-    .shell { max-width: 900px; margin:0 auto; padding-bottom:92px; }
-    header.hero { position:relative; padding:22px 18px 20px; color:white; background:linear-gradient(135deg, #1d4ed8 0%, #3b82f6 52%, #60a5fa 100%); overflow:hidden; }
-    header.hero:before { content:""; position:absolute; inset:auto -80px -90px auto; width:220px; height:220px; background:rgba(255,255,255,.16); border-radius:999px; }
-    .eyebrow { display:inline-flex; gap:6px; align-items:center; font-size:12px; font-weight:700; padding:6px 10px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28); border-radius:999px; backdrop-filter: blur(8px); }
-    h1 { position:relative; margin:14px 0 8px; font-size:28px; line-height:1.15; letter-spacing:-.04em; }
-    .lead { position:relative; margin:0; color:rgba(255,255,255,.92); font-size:14px; }
-    .hero-actions { position:relative; margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
-    button, .btn { border:0; border-radius:14px; padding:11px 13px; font-weight:800; font-size:14px; cursor:pointer; background:#fff; color:var(--brand-dark); box-shadow:0 8px 18px rgba(30,64,175,.18); }
-    .btn.secondary, button.secondary { background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.35); box-shadow:none; }
-    .install-hint { display:none; margin-top:12px; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.28); font-size:13px; }
-    .tabs { position:sticky; top:0; z-index:20; display:flex; gap:8px; overflow-x:auto; padding:10px 12px; background:rgba(246,248,251,.92); backdrop-filter: blur(12px); border-bottom:1px solid var(--line); }
-    .tabs a { text-decoration:none; white-space:nowrap; color:var(--muted); background:white; border:1px solid var(--line); border-radius:999px; padding:9px 12px; font-size:13px; font-weight:800; }
-    .tabs a.active { color:#fff; background:var(--brand); border-color:var(--brand); }
-    main { padding:14px 14px 0; }
-    .search-wrap { position:sticky; top:53px; z-index:18; padding:8px 0 12px; background:linear-gradient(to bottom, rgba(246,248,251,.96), rgba(246,248,251,.82)); backdrop-filter: blur(10px); }
-    .search { width:100%; padding:14px 16px; border-radius:16px; border:1px solid var(--line); background:white; font-size:15px; outline:none; box-shadow:0 8px 24px rgba(15,23,42,.05); }
-    section { scroll-margin-top:112px; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin:12px 0; }
-    .card.compact { padding:14px; }
-    .section-title { display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin:22px 2px 10px; }
-    .section-title h2 { margin:0; font-size:21px; letter-spacing:-.04em; }
-    .section-title p { margin:4px 0 0; color:var(--muted); font-size:13px; }
-    .pill { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:5px 9px; background:var(--soft); color:var(--brand-dark); font-size:12px; font-weight:900; white-space:nowrap; }
-    .grid { display:grid; grid-template-columns:1fr; gap:10px; }
-    @media (min-width:760px) { .grid.two { grid-template-columns:1fr 1fr; } .grid.three { grid-template-columns:repeat(3,1fr); } }
-    .purpose-list { margin:0; padding-left:18px; }
-    .purpose-list li { margin:8px 0; }
-    .question-card { border:1px solid var(--line); border-radius:16px; padding:13px; background:#fff; display:flex; gap:10px; align-items:flex-start; }
-    .num { flex:0 0 auto; width:28px; height:28px; border-radius:10px; display:grid; place-items:center; background:var(--soft); color:var(--brand-dark); font-weight:900; font-size:13px; }
-    details { border:1px solid var(--line); border-radius:16px; background:white; overflow:hidden; margin:10px 0; }
-    summary { list-style:none; cursor:pointer; padding:15px; display:flex; gap:10px; align-items:center; justify-content:space-between; font-weight:900; }
-    summary::-webkit-details-marker { display:none; }
-    summary .summary-main { display:flex; flex-direction:column; gap:3px; }
-    summary small { color:var(--muted); font-weight:700; }
-    .chev { transition:.2s; color:var(--muted); }
-    details[open] .chev { transform:rotate(180deg); }
-    .details-body { padding:0 15px 15px; border-top:1px solid var(--line); }
-    .mini-title { font-size:13px; color:var(--muted); font-weight:900; margin:14px 0 7px; }
-    .check-row { display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-bottom:1px solid #eef2f7; }
-    .check-row:last-child { border-bottom:0; }
-    input[type="checkbox"] { appearance:none; -webkit-appearance:none; margin-top:2px; width:22px; height:22px; flex:0 0 auto; border:2px solid #cbd5e1; border-radius:7px; display:grid; place-items:center; background:white; }
-    input[type="checkbox"]:checked { background:var(--brand); border-color:var(--brand); }
-    input[type="checkbox"]:checked:after { content:"✓"; color:white; font-weight:900; font-size:15px; line-height:1; }
-    .check-label strong { display:block; font-size:14px; }
-    .check-label span { display:block; color:var(--muted); font-size:13px; margin-top:2px; }
-    .simple-list { margin:0; padding-left:18px; }
-    .simple-list li { margin:7px 0; }
-    .grade { border-radius:18px; padding:15px; background:white; border:1px solid var(--line); }
-    .grade-head { display:flex; gap:10px; align-items:center; margin-bottom:8px; }
-    .grade-badge { width:38px; height:38px; border-radius:14px; display:grid; place-items:center; font-size:18px; color:white; font-weight:900; }
-    .grade.A .grade-badge { background:var(--green); } .grade.B .grade-badge { background:var(--orange); } .grade.C .grade-badge { background:var(--muted); }
-    .note-box { display:grid; gap:8px; }
-    textarea, input[type="text"] { width:100%; border:1px solid var(--line); border-radius:14px; padding:12px; font-family:inherit; font-size:14px; outline:none; background:#fff; }
-    textarea { min-height:110px; resize:vertical; }
-    .note-tools { display:flex; gap:8px; flex-wrap:wrap; }
-    .outline-btn { background:white; color:var(--ink); border:1px solid var(--line); box-shadow:none; }
-    .danger { color:#b91c1c; }
-    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:14px; }
-    table { width:100%; min-width:540px; border-collapse:collapse; background:white; }
-    th, td { text-align:left; padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top; font-size:13px; }
-    th { background:#f8fafc; color:#334155; font-size:12px; }
-    tr:last-child td { border-bottom:0; }
-    .chips { display:flex; flex-wrap:wrap; gap:8px; }
-    .chip { border-radius:999px; padding:7px 10px; background:#f8fafc; border:1px solid var(--line); font-size:13px; font-weight:800; color:#334155; }
-    .hidden { display:none !important; }
-    .empty { display:none; color:var(--muted); text-align:center; padding:24px; }
-    .fab { position:fixed; right:14px; bottom:16px; z-index:30; display:flex; flex-direction:column; gap:8px; }
-    .fab button { border-radius:999px; padding:12px 14px; background:var(--brand); color:white; box-shadow:0 12px 24px rgba(37,99,235,.28); }
-    .progress-wrap { height:9px; background:#e2e8f0; border-radius:999px; overflow:hidden; margin-top:10px; }
-    .progress-bar { height:100%; width:0; background:var(--brand); border-radius:999px; transition:.2s; }
-    footer { color:var(--muted); font-size:12px; text-align:center; padding:18px; }
-    .toast { position:fixed; left:50%; bottom:88px; transform:translateX(-50%) translateY(20px); background:#0f172a; color:#fff; padding:10px 14px; border-radius:999px; font-size:13px; opacity:0; pointer-events:none; transition:.2s; z-index:50; white-space:nowrap; }
-    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-    @media (max-width:430px) { h1 { font-size:25px; } .search-wrap { top:50px; } .section-title h2 { font-size:19px; } .hero-actions button { flex:1; } }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="전시회 참관 가이드">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>전시회 참관 가이드</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="shell" id="top">
-    <header class="hero">
-      <span class="eyebrow">🐾 Interzoo 현장용 · 모바일/PWA</span>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Interzoo 2026 · 모바일 현장용</p>
       <h1>전시회 참관 가이드</h1>
-      <p class="lead">인쇄물 대신 폰에서 바로 확인하는 핵심 질문·체크리스트·OEM 상담 포인트·보고서 템플릿</p>
-      <div class="hero-actions">
-        <button id="installBtn" style="display:none">앱 설치</button>
-        <button class="secondary" id="exportBtnTop">메모 내보내기</button>
-        <button class="secondary" id="resetBtnTop">체크 초기화</button>
-      </div>
-      <div class="install-hint" id="iosHint">iPhone은 Safari 공유 버튼 → 홈 화면에 추가로 설치할 수 있습니다.</div>
-    </header>
+    </div>
+    <button id="installBtn" class="ghost hidden">설치</button>
+  </header>
 
-    <nav class="tabs" id="tabs">
-      <a href="#summary" class="active">요약</a>
-      <a href="#questions">핵심질문</a>
-      <a href="#field">현장체크</a>
-      <a href="#booth">부스등급</a>
-      <a href="#package">패키지</a>
-      <a href="#oem">OEM</a>
-      <a href="#report">보고서</a>
-    </nav>
+  <main class="container">
+    <section id="guidePage" class="page active-page" aria-labelledby="guideTitle">
+      <section class="hero card guide-hero">
+        <div>
+          <p class="eyebrow">첫 페이지 · 참관 가이드</p>
+          <h2 id="guideTitle">전시장에서 “무엇을 봐야 하는지” 바로 확인하는 화면</h2>
+          <p>제품을 하나씩 보는 것이 아니라, 반복되는 시장 신호·소비자 설득 구조·당사 적용 가능성을 기준으로 기록합니다.</p>
+        </div>
+        <div class="hero-actions-vertical">
+          <button id="startBoothBtn" class="primary big">+ 부스 기록하기</button>
+          <button id="goReportBtn" class="secondary">보고서 보기</button>
+        </div>
+      </section>
+      <section class="quick-guide grid-3">
+        <div class="card stat"><strong>1</strong><span>시장 트렌드 확인</span></div>
+        <div class="card stat"><strong>2</strong><span>당사와 비교</span></div>
+        <div class="card stat"><strong>3</strong><span>적용 포인트 도출</span></div>
+      </section>
+      <div id="guideRoot"></div>
+    </section>
 
-    <main>
-      <div class="search-wrap"><input class="search" id="search" placeholder="검색: 예) 패키지, 구강, MOQ, support, SKU" /></div>
-      <div class="empty" id="empty">검색 결과가 없습니다. 다른 키워드로 확인해보세요.</div>
+    <section id="boothPage" class="page" aria-labelledby="boothTitle">
+      <section class="hero card">
+        <div>
+          <p class="eyebrow">두 번째 페이지 · 부스 기록</p>
+          <h2 id="boothTitle">현장에서 30초 안에 핵심만 저장하세요.</h2>
+          <p>브랜드, 부스번호, 사진, 녹음, 점수, 보고 포함 여부를 한 번에 기록합니다.</p>
+        </div>
+        <button id="newBoothBtn" class="primary big">+ 부스 기록</button>
+      </section>
 
-      <section id="summary" class="searchable" data-keywords="참관 목적 요약 인사이트 제품기획 브랜드 개선">
-        <div class="section-title"><div><h2>참관 목적</h2><p>현장에서 판단 기준을 잃지 않기 위한 한 장 요약</p></div><span class="pill">목적</span></div>
-        <div class="card"><ol class="purpose-list" id="purposeList"></ol></div>
-        <div class="card note-box">
-          <div class="mini-title">오늘의 전체 메모</div>
-          <input type="text" id="boothName" placeholder="부스명 / 브랜드명" />
-          <textarea id="globalNote" placeholder="예: 구강 기능 제품은 원료보다 입냄새 체감 메시지를 앞세우는 브랜드가 많음"></textarea>
-          <div class="note-tools"><button class="outline-btn" id="copyNoteBtn">메모 복사</button><button class="outline-btn" id="saveNoteBtn">저장</button></div>
+      <section class="stats grid-4">
+        <div class="stat card"><strong id="totalCount">0</strong><span>총 기록</span></div>
+        <div class="stat card"><strong id="reportCount">0</strong><span>보고 포함</span></div>
+        <div class="stat card"><strong id="priorityCount">0</strong><span>A 우선순위</span></div>
+        <div class="stat card"><strong id="avgScore">0.0</strong><span>평균 점수</span></div>
+      </section>
+
+      <section class="toolbar card flat-card">
+        <label class="search-wrap">
+          <span>검색</span>
+          <input id="searchInput" placeholder="브랜드, 국가, 메모 검색">
+        </label>
+        <label>
+          <span>상태</span>
+          <select id="statusFilter" aria-label="상태 필터">
+            <option value="all">전체 상태</option>
+            <option value="draft">검토 전</option>
+            <option value="watch">추적 필요</option>
+            <option value="report">보고 포함</option>
+          </select>
+        </label>
+        <label>
+          <span>태그</span>
+          <select id="tagFilter" aria-label="태그 필터">
+            <option value="all">전체 태그</option>
+          </select>
+        </label>
+      </section>
+
+      <section id="boothList" class="booth-list"></section>
+    </section>
+
+    <section id="reportPage" class="page" aria-labelledby="reportTitle">
+      <section class="hero card report-hero">
+        <div>
+          <p class="eyebrow">세 번째 페이지 · 보고서</p>
+          <h2 id="reportTitle">부스 기록을 대표님 보고용으로 자동 정리합니다.</h2>
+          <p>보고 포함 또는 A등급으로 지정한 부스를 중심으로 핵심 관찰·당사 적용·추가 확인사항을 정리합니다.</p>
+        </div>
+        <div class="hero-actions-vertical">
+          <button id="copyReportBtn" class="primary">보고서 복사</button>
+          <button id="downloadReportBtn" class="secondary">TXT 저장</button>
         </div>
       </section>
 
-      <section id="questions" class="searchable" data-keywords="핵심 질문 소비자 설득 차이 적용 구조">
-        <div class="section-title"><div><h2>이번 참관에서 답을 가져올 질문</h2><p>부스마다 이 질문에 답이 있는지 확인</p></div><span class="pill">5개</span></div>
-        <div class="grid" id="mainQuestions"></div>
+      <section class="report card">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">자동 정리</p>
+            <h2>대표님 보고용 요약</h2>
+          </div>
+        </div>
+        <textarea id="reportText" rows="16" readonly></textarea>
       </section>
 
-      <section id="field" class="searchable" data-keywords="트렌드 격차 니즈 기획 현장 체크리스트 기능성 제형 소비자 불안">
-        <div class="section-title"><div><h2>현장 체크리스트</h2><p>각 영역별 질문·확인 항목·가져올 결과물</p></div><span class="pill"><span id="checkedCount">0</span>/<span id="totalCount">0</span> 완료</span></div>
-        <div class="card compact"><div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div></div>
-        <div id="fieldSections"></div>
+      <section class="report-guide card">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">보고서 작성 구조</p>
+            <h2>참관 후 정리할 때 볼 기준</h2>
+          </div>
+        </div>
+        <div id="reportTemplateRoot"></div>
       </section>
 
-      <section id="common" class="searchable" data-keywords="공통 질문 제품 불편 차별점 3초 이해 응용 장기 참고">
-        <div class="section-title"><div><h2>제품을 볼 때 공통 질문</h2><p>사진 찍기 전·상담 전 빠르게 확인</p></div><span class="pill">공통</span></div>
-        <div class="card" id="commonQuestions"></div>
+      <section class="backup card">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">백업</p>
+            <h2>데이터 백업/복원</h2>
+          </div>
+        </div>
+        <div class="button-row wrap">
+          <button id="exportBtn" class="secondary">JSON 백업</button>
+          <label class="secondary file-label">JSON 복원<input id="importInput" type="file" accept="application/json"></label>
+          <button id="clearBtn" class="danger">전체 삭제</button>
+        </div>
+        <p class="hint">데이터는 현재 기기의 브라우저 저장소에 보관됩니다. 전시 전후로 JSON 백업을 권장합니다.</p>
       </section>
+    </section>
+  </main>
 
-      <section id="booth" class="searchable" data-keywords="부스 방문 우선순위 A B C 등급 OEM ODM 수출">
-        <div class="section-title"><div><h2>부스 방문 우선순위</h2><p>시간이 부족할 때 A/B/C로 빠르게 분류</p></div><span class="pill">A/B/C</span></div>
-        <div class="grid three" id="boothGrades"></div>
-      </section>
-
-      <section id="package" class="searchable" data-keywords="패키지 디자인 체크리스트 즉시 이해 시리즈 확장성 진열성 브랜드 인상 SKU">
-        <div class="section-title"><div><h2>패키지 디자인 참고 체크리스트</h2><p>소비자가 3~5초 안에 이해하는 구조인지 확인</p></div><span class="pill">패키지</span></div>
-        <div id="packageChecklist"></div>
-      </section>
-
-      <section id="function" class="searchable" data-keywords="동일 기능 다르게 푸는 방식 원료 제형 급여상황 전문성 감성 브랜드 구조">
-        <div class="section-title"><div><h2>동일 기능을 다르게 푸는 방식</h2><p>피부·장·구강·진정·관절 기능 비교 시 활용</p></div><span class="pill">비교</span></div>
-        <div class="card"><div class="grid two" id="functionWays"></div></div>
-      </section>
-
-      <section id="oem" class="searchable" data-keywords="OEM ODM PB MOQ 커스터마이징 포뮬러 수출 인증 리드타임">
-        <div class="section-title"><div><h2>OEM / ODM / PB 가능성 체크</h2><p>사업화 연결 가능성이 있는 업체 상담용 질문</p></div><span class="pill">상담</span></div>
-        <div class="card" id="oemChecklist"></div>
-      </section>
-
-      <section id="report" class="searchable" data-keywords="참관 후 보고서 예시 핵심 변화 동일 기능 적용 기회 수출 관점">
-        <div class="section-title"><div><h2>참관 후 보고서 템플릿</h2><p>현장 메모를 보고용 구조로 바꿀 때 사용</p></div><span class="pill">보고서</span></div>
-        <div id="reportTemplates"></div>
-      </section>
-    </main>
-    <footer>오프라인에서도 열 수 있도록 PWA 구조로 제작되었습니다. 체크·메모는 현재 기기 브라우저에 저장됩니다.</footer>
-  </div>
-  <div class="fab"><button id="toTopBtn">↑ 위로</button></div>
-  <div class="toast" id="toast">저장되었습니다.</div>
-
-<script>
-const DATA = {"purpose": ["글로벌 펫 시장의 트렌드를 확인하고, 향후 당사 제품기획에 활용할 수 있는 인사이트를 확보한다.", "기능성 제품의 표현 방식, 제형 트렌드, 패키지 마케팅 구조, 수출 제품 전략을 확인한다.", "해외 브랜드와 당사 제품을 비교하여 이미 잘하고 있는 부분과 보완이 필요한 부분을 구분한다.", "글로벌 브랜드의 제품 설계 방식과 소비자 설득 구조를 직접 확인하여 신제품 기획·브랜드 개선 기준을 확보한다."], "mainQuestions": ["글로벌 펫 시장의 트렌드는 무엇인가?", "해외 브랜드는 같은 기능을 소비자에게 어떤 방식으로 다르게 설득하고 있는가?", "당사와 비교했을 때 차이는 무엇인가?", "당사가 아직 소구 및 해소하지 못한 소비자 니즈는 무엇인가?", "당사 제품기획·패키지·수출 전략에 적용 가능한 구조는 무엇인가?"], "trend": {"title": "① 시장의 트렌드는 어디로 움직이고 있는가?", "core": "글로벌 펫 시장에서 반복적으로 나타나는 변화는 무엇인가?", "questions": ["기능성은 어떤 언어로 표현되고 있는가?", "어떤 기능이 반복적으로 등장하고 있는가?", "패키지 언어는 더 직관적으로 가고 있는가, 더 전문적으로 가고 있는가?", "건강, 지속가능성, 펫푸드 기술, 급여 편의성 키워드는 어느 정도 비중으로 나타나는가?", "같은 니즈를 브랜드별로 어떤 다른 방식으로 풀고 있는가?", "같은 기능을 원료, 제형, 패키지, 전문성, 채널 중 무엇으로 풀고 있는가?", "제품 제형의 트렌드는 어떻게 변하고 있는가?", "브랜드들이 어떤 소비자 불안을 해결하려 하고 있는가?"], "checks": [["기능성 표현", "직접 효능 표현인지, support성 표현인지, 원료 중심인지, 소비자 문제 중심인지"], ["기능성 카테고리", "장, 피부, 관절, 구강, 진정, 체중, 면역 등 반복적으로 보이는 기능"], ["제형 변화", "사료, 간식, 츄어블, 파우더, 토퍼, 소스, 액상, 스틱 등"], ["패키지 언어", "직관적 표현, 전문적 표현, 감성적 표현, 수의학적 표현"], ["시장 키워드", "건강, 지속가능성, 휴먼그레이드, 기능성, 편의성, 기술 기반 펫푸드"], ["소비자 불안", "급여 불편, 건강 걱정, 기호성 불안, 죄책감, 전문성 부족"]], "outputs": ["글로벌 펫 시장 핵심 트렌드 3~5가지", "반복적으로 등장한 기능성 카테고리", "기능성 표현 방식 사례", "제형 트렌드 변화 사례"]}, "gap": {"title": "② 우리와 비교했을 때의 기회와 격차는 무엇인가?", "core": "우리 기준에서 무엇이 기회이고 무엇이 약점인가?", "questions": ["해외는 이미 하고 있는데 우리는 아직 하지 않는 것은 무엇인가?", "우리는 하고 있지만 해외 브랜드가 더 잘 표현하는 것은 무엇인가?", "우리 컨셉과 비슷하지만 더 세련되게 설계한 브랜드는 어디인가?", "지금 당장은 어렵지만 방향성 참고 가치가 큰 것은 무엇인가?", "우리가 더 좋게 만들 수 있는 포인트는 무엇인가?", "해외는 이미 쓰고 있지만 국내에서는 아직 덜 보이는 구조는 무엇인가?"], "checks": [["제품 설계", "기능, 원료, 제형, 급여 방식이 당사 제품과 어떻게 다른가"], ["메시지 구조", "당사보다 소비자가 더 쉽게 이해할 수 있게 표현했는가"], ["패키지 구조", "SKU 구분, 기능 전달, 정보 배치가 더 직관적인가"], ["브랜드 확장성", "시리즈 제품으로 확장하기 쉬운 구조인가"], ["카테고리 공백", "국내에서는 약하지만 해외에서 커지고 있는 영역인가"], ["실행 가능성", "당사가 단기 또는 중장기적으로 적용 가능한가"]], "outputs": ["해외 브랜드가 더 잘한 포인트", "당사와 다른 새로운 카테고리 또는 표현 방식", "단기 적용 가능 포인트", "중장기 참고 포인트"]}, "needs": {"title": "③ 아직 언어화하지 못한 소비자 니즈는 무엇인가?", "core": "제품이 어떤 소비자 불안과 욕구를 해결하고 있는가?", "questions": ["이 제품은 소비자에게 무엇을 팔고 있는가?", "편리함, 전문성, 프리미엄, 죄책감 해소 중 무엇을 파는가?", "건강 걱정, 급여 실패, 성분 불안을 줄여주는가?", "소비자가 이 제품을 사면서 스스로 어떤 만족을 느끼게 만드는가?"], "checks": [["편리함", "급여가 쉽다, 휴대가 쉽다, 보관이 쉽다, 섞어 먹이기 쉽다"], ["안심", "성분이 명확하다, 원산지가 보인다, 불필요한 성분을 뺐다"], ["전문성", "수의사 추천, 기능별 설계, 과학적 포뮬러, 임상적 근거"], ["프리미엄", "고급 원료, 휴먼그레이드, 프리미엄 패키지, 고급스러운 톤"], ["죄책감 해소", "간식이지만 건강하게 줄 수 있다, 보상과 관리가 동시에 가능하다"], ["기호성 불안", "잘 먹는다는 메시지, picky eater 대응, 맛 강조"], ["건강 걱정", "피부, 장, 관절, 구강, 체중, 진정 등 관리 포인트 제시"]], "outputs": ["소비자 불안을 표현하는 방식", "당사가 아직 충분히 쓰지 못한 소비자 언어", "기능보다 앞에 내세우는 구매 이유", "패키지·상세페이지·영업자료 응용 메시지"]}, "planning": {"title": "④ 앞으로의 기획에 참고할 힌트는 무엇인가?", "core": "전시를 통해 당사의 제품기획 기준을 바꿀 만한 신호가 있는가?", "questions": ["제품명보다 메시지 구조가 더 중요해지고 있는가?", "기능성보다 급여 편의성에 중점을 두고 있는가?", "지속가능성은 부가 요소가 아니라 기본값이 되어가고 있는가?", "전문성보다 직관성이 더 중요해지고 있는가?", "소비자는 원료명보다 ‘내가 왜 사야 하는지’를 더 빨리 이해하길 원하는가?", "기능, 원료, 타깃, 제형 중 무엇이 가장 앞에 배치되고 있는가?"], "checks": [["제품명", "기능을 설명하는가, 감성을 전달하는가, 브랜드 체계를 강화하는가"], ["메시지", "소비자가 3~5초 안에 제품 용도를 이해할 수 있는가"], ["기능성", "직접 말하는가, 관리·support·balance처럼 완화해서 말하는가"], ["급여 편의성", "제품 구매 이유에서 편의성이 얼마나 중요하게 보이는가"], ["지속가능성", "부가 메시지인지, 브랜드의 기본 전제인지"], ["SKU 구조", "기능별, 연령별, 증상별, 원료별, 급여 상황별로 어떻게 나누는가"], ["브랜드 블록", "진열 시 한눈에 같은 브랜드로 보이는가"]], "outputs": ["제품기획 기준에 반영할 참고 자료", "제품명·패키지·기능 표현·SKU 설계 개선 힌트", "향후 신제품 기획 시 우선 고려 기준", "바꿔야 할 방식과 지켜봐야 할 방식 구분"]}, "commonQuestions": ["이 제품은 정확히 어떤 불편을 해결하는가?", "기능을 어떤 방식으로 풀었는가?", "원료, 제형, 패키지, 메시지 중 무엇이 핵심 차별점인가?", "소비자가 3초 안에 이해할 수 있게 만들었는가?", "우리보다 더 잘한 점은 무엇인가? 표현인가, 패키지인가?", "당사가 바로 응용할 수 있는 부분은 무엇인가?", "지금은 어렵지만 장기적으로 참고할 만한 부분은 무엇인가?"], "boothGrades": [["A", "반드시 방문", ["당사 제품군과 직접 연관성이 높음", "기능성·제형·패키지·브랜드 구조 중 명확한 참고 포인트가 있음", "OEM/ODM 또는 수출 연결 가능성이 있음"]], ["B", "가능하면 방문", ["직접 사업화 가능성은 낮지만 시장 변화 신호가 있음", "당사와 비교할 만한 메시지나 패키지 구조가 있음", "향후 기획 참고 가치가 있음"]], ["C", "사진·간단 메모 중심", ["흥미로운 요소는 있으나 당사 연관성이 낮음", "아이디어 차원에서만 참고 가능", "깊은 상담보다 사진 기록 위주로 충분함"]]], "packageChecklist": [["1순위: 즉시 이해 가능성", ["5초 안에 무엇을 하는 제품인지 보이는가?", "기능, 타깃, 급여 목적이 직관적으로 드러나는가?", "제품명이 아니라 전면 메시지만 봐도 용도가 이해되는가?", "주요 기능이 어렵거나 전문적인 용어에 묻혀 있지 않은가?", "SKU 구분이 쉬운가?", "맛, 기능, 연령, 타깃이 명확히 구분되는가?"]], ["2순위: 시리즈 확장성과 진열성", ["시리즈 확장이 쉬운 레이아웃인가?", "기능별, 맛별, 연령별 확장이 가능한 디자인 체계인가?", "진열 시 한 줄로 놓였을 때 브랜드 블록이 형성되는가?", "같은 브랜드 제품임이 한눈에 보이는가?", "SKU가 많아져도 복잡해 보이지 않는가?", "컬러, 아이콘, 숫자, 기능명이 체계적으로 쓰이고 있는가?"]], ["3순위: 정보 충돌과 브랜드 인상", ["기능, 원료, 타깃이 서로 충돌하지 않는가?", "예: 저지방인데 고급 간식 이미지가 과하게 강하지 않은가?", "전문성을 말하면서 지나치게 캐주얼하게 보이지 않는가?", "정보가 많아도 복잡해 보이지 않는가?", "원료, 기능, 급여법, 주의사항의 위계가 잘 잡혀 있는가?", "프리미엄, 전문성, 친근함 중 어떤 인상을 주는가?", "해당 인상이 제품 카테고리와 맞는가?"]]], "functionWays": [["원료 중심", "특정 기능성 원료를 전면에 내세우는가?"], ["제형 중심", "기존과 다른 형태로 급여 편의성을 높였는가?"], ["급여 상황 중심", "산책 후, 외출 전, 식사 보조 등 사용 상황을 제안하는가?"], ["전문성 중심", "수의사 추천, 기능별 포뮬러, 과학적 근거를 강조하는가?"], ["패키지 중심", "기능을 패키지만으로 직관적으로 이해시키는가?"], ["감성 중심", "보호자의 걱정, 죄책감, 안심 욕구를 건드리는가?"], ["브랜드 구조 중심", "기능별 라인업을 체계적으로 구성했는가?"]], "oemChecklist": [["거래 형태", "PB, OEM, ODM이 가능한가?"], ["MOQ", "최소 발주 수량은 어느 정도인가?"], ["커스터마이징", "패키지, 제형, 원료 변경이 가능한가?"], ["포뮬러 변경", "기능성 원료나 함량 조정이 가능한가?"], ["제형 변경", "츄어블, 파우더, 소스, 토퍼 등 제형 변경이 가능한가?"], ["수출 경험", "현재 어느 국가에 수출하고 있는가?"], ["인증", "보유 인증, 품질 기준, 제조시설 기준은 무엇인가?"], ["리드타임", "샘플, 초도 생산, 본생산까지 기간은 어느 정도인가?"], ["차별성", "국내 제조사와 비교했을 때 강점은 무엇인가?"], ["현실성", "당사 단가, 수량, 규제 조건에 맞출 수 있는가?"]], "reportTemplates": [{"title": "① 이번 전시의 핵심 변화 3~5가지", "headers": ["핵심 변화", "관찰 내용", "대표 사례", "당사 시사점"], "rows": [["기능성 표현 변화", "직접 효능보다 support성 표현 증가", "브랜드 A, B", "당사 패키지 문구 개선 필요"], ["급여 편의성 강화", "츄어블, 토퍼, 파우더 제형 확대", "브랜드 C", "기능성 제품도 급여 편의성 강조 필요"], ["패키지 직관성 강화", "3초 안에 기능 이해 가능한 구조", "브랜드 D", "전면 메시지 단순화 필요"]]}, {"title": "② 동일 기능을 다르게 푼 사례", "headers": ["기능", "브랜드별 접근 방식", "시사점"], "rows": [["피부", "원료 중심 / 수분 장벽 메시지 / 알러지 안심 표현", "원료보다 소비자 불안 중심 표현 가능"], ["장", "프로바이오틱스 / 프리바이오틱스 / 소화 편의성 / 변 상태 표현", "결과 체감 표현이 중요"], ["구강", "해조류 / 아연 / 효소 / 씹는 구조 / 입냄새 메시지", "원료보다 사용 편의성과 체감 메시지가 중요"], ["진정", "테아닌 / 허브 / 상황별 급여 / 스트레스 완화 표현", "특정 상황보다 일상 컨디션 관리로 확장 가능"]]}, {"title": "③ 당사 적용 가능 기회 영역", "headers": ["구분", "내용", "적용 가능성"], "rows": [["바로 적용", "패키지 전면 메시지 개선, SKU 구분 방식, support성 표현", "단기"], ["조건부 적용", "신규 제형, 기능성 원료 조합, OEM/ODM 협업", "중기"], ["장기 참고", "지속가능성 패키지, 글로벌 수출용 브랜드 구조", "장기"]]}, {"title": "④ 수출 관점 참고 포인트", "headers": ["항목", "확인 내용", "당사 적용 방향"], "rows": [["패키지 언어", "짧고 직관적인 영어 표현", "수출용 전면 문구 개선"], ["SKU 체계", "기능별 컬러·아이콘 구분", "해외 바이어용 라인업 정리"], ["정보 배치", "원료, 기능, 급여법의 명확한 위계", "패키지 후면 구조 개선"], ["규제 안정성", "직접 효능보다 support성 표현 사용", "기능성 문구 리스크 완화"]]}]};
-const $ = (sel, root=document) => root.querySelector(sel);
-const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
-const storageKey = 'interzoo-guide-v1';
-let deferredPrompt = null;
-
-function getState(){
-  try { return JSON.parse(localStorage.getItem(storageKey)) || {checks:{}, notes:{}}; }
-  catch(e){ return {checks:{}, notes:{}}; }
-}
-function setState(state){ localStorage.setItem(storageKey, JSON.stringify(state)); }
-function showToast(text='저장되었습니다.') { const t=$('#toast'); t.textContent=text; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 1500); }
-function idify(text){ return text.replace(/[^가-힣a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,50); }
-
-function makeChecklist(items, prefix){
-  const state = getState();
-  return items.map((it, idx) => {
-    const title = Array.isArray(it) ? it[0] : it;
-    const desc = Array.isArray(it) ? it[1] : '';
-    const id = `${prefix}-${idx}-${idify(title)}`;
-    const checked = state.checks[id] ? 'checked' : '';
-    return `<label class="check-row"><input type="checkbox" data-check-id="${id}" ${checked}><span class="check-label"><strong>${title}</strong>${desc ? `<span>${desc}</span>` : ''}</span></label>`;
-  }).join('');
-}
-
-function render(){
-  $('#purposeList').innerHTML = DATA.purpose.map(x=>`<li>${x}</li>`).join('');
-  $('#mainQuestions').innerHTML = DATA.mainQuestions.map((q,i)=>`<div class="question-card"><span class="num">${i+1}</span><div>${q}</div></div>`).join('');
-  const fieldKeys = ['trend','gap','needs','planning'];
-  $('#fieldSections').innerHTML = fieldKeys.map(key => {
-    const s = DATA[key];
-    return `<details open class="card searchable" data-keywords="${s.title} ${s.core} ${s.questions.join(' ')} ${s.outputs.join(' ')}">
-      <summary><span class="summary-main"><span>${s.title}</span><small>${s.core}</small></span><span class="chev">⌄</span></summary>
-      <div class="details-body">
-        <div class="mini-title">세부 질문</div>
-        ${makeChecklist(s.questions, key+'-q')}
-        <div class="mini-title">현장에서 확인할 항목</div>
-        ${makeChecklist(s.checks, key+'-c')}
-        <div class="mini-title">가져올 결과물</div>
-        <ul class="simple-list">${s.outputs.map(x=>`<li>${x}</li>`).join('')}</ul>
+  <dialog id="boothDialog">
+    <form method="dialog" id="boothForm">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">부스 기록</p>
+          <h2 id="dialogTitle">새 부스 기록</h2>
+        </div>
+        <button type="button" id="closeDialogBtn" class="icon-btn" aria-label="닫기">×</button>
       </div>
-    </details>`;
-  }).join('');
-  $('#commonQuestions').innerHTML = makeChecklist(DATA.commonQuestions, 'common');
-  $('#boothGrades').innerHTML = DATA.boothGrades.map(([grade,title,items]) => `<div class="grade ${grade}"><div class="grade-head"><span class="grade-badge">${grade}</span><div><strong>${title}</strong></div></div><ul class="simple-list">${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('');
-  $('#packageChecklist').innerHTML = DATA.packageChecklist.map(([title,items], idx)=>`<details open class="card"><summary><span>${title}</span><span class="chev">⌄</span></summary><div class="details-body">${makeChecklist(items, 'package-'+idx)}</div></details>`).join('');
-  $('#functionWays').innerHTML = DATA.functionWays.map(([title,desc], idx)=>`<div class="question-card"><span class="num">${idx+1}</span><div><strong>${title}</strong><br><span style="color:var(--muted);font-size:13px">${desc}</span></div></div>`).join('');
-  $('#oemChecklist').innerHTML = makeChecklist(DATA.oemChecklist, 'oem');
-  $('#reportTemplates').innerHTML = DATA.reportTemplates.map(t => `<details class="card"><summary><span>${t.title}</span><span class="chev">⌄</span></summary><div class="details-body"><div class="table-wrap"><table><thead><tr>${t.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${t.rows.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></details>`).join('');
-  loadNotes();
-  bindChecks();
-  updateProgress();
-}
 
-function bindChecks(){
-  $$('input[type="checkbox"][data-check-id]').forEach(box => {
-    box.addEventListener('change', () => {
-      const state = getState();
-      state.checks[box.dataset.checkId] = box.checked;
-      setState(state);
-      updateProgress();
-    });
-  });
-}
-function updateProgress(){
-  const boxes = $$('input[type="checkbox"][data-check-id]');
-  const checked = boxes.filter(b=>b.checked).length;
-  $('#checkedCount').textContent = checked;
-  $('#totalCount').textContent = boxes.length;
-  $('#progressBar').style.width = boxes.length ? `${Math.round(checked/boxes.length*100)}%` : '0%';
-}
-function loadNotes(){
-  const state = getState();
-  $('#boothName').value = state.notes.boothName || '';
-  $('#globalNote').value = state.notes.globalNote || '';
-}
-function saveNotes(){
-  const state = getState();
-  state.notes.boothName = $('#boothName').value;
-  state.notes.globalNote = $('#globalNote').value;
-  setState(state);
-}
-function exportNotes(){
-  saveNotes();
-  const state = getState();
-  const checkedLabels = $$('input[type="checkbox"][data-check-id]:checked').map(box => box.closest('label').innerText.trim()).join('\n- ');
-  const text = `Interzoo 참관 메모\n\n[부스/브랜드]\n${state.notes.boothName || ''}\n\n[전체 메모]\n${state.notes.globalNote || ''}\n\n[체크 완료 항목]\n${checkedLabels ? '- ' + checkedLabels : ''}\n`;
-  const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `interzoo-note-${new Date().toISOString().slice(0,10)}.txt`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
+      <input type="hidden" id="boothId">
 
-function setupSearch(){
-  const input = $('#search');
-  input.addEventListener('input', () => {
-    const q = input.value.trim().toLowerCase();
-    const blocks = $$('.searchable');
-    let visible = 0;
-    blocks.forEach(el => {
-      const hay = (el.innerText + ' ' + (el.dataset.keywords || '')).toLowerCase();
-      const ok = !q || hay.includes(q);
-      el.classList.toggle('hidden', !ok);
-      if(ok) visible++;
-    });
-    $('#empty').style.display = visible ? 'none' : 'block';
-  });
-}
+      <div class="form-grid">
+        <label>브랜드/업체명<input id="brand" required placeholder="예: 브랜드명"></label>
+        <label>국가<input id="country" placeholder="예: Germany"></label>
+        <label>홀/부스번호<input id="boothNo" placeholder="예: Hall 7 / A-123"></label>
+        <label>카테고리<input id="category" placeholder="예: Treat, Supplement, Wet food"></label>
+      </div>
 
-function setupTabs(){
-  const links = $$('#tabs a');
-  const sections = links.map(a => $(a.getAttribute('href'))).filter(Boolean);
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if(entry.isIntersecting){
-        links.forEach(a=>a.classList.toggle('active', a.getAttribute('href') === `#${entry.target.id}`));
-      }
-    });
-  }, {rootMargin:'-45% 0px -50% 0px', threshold:0});
-  sections.forEach(s=>io.observe(s));
-}
+      <label>한 줄 역할 정의<input id="oneLine" placeholder="이 부스는 반려동물/보호자의 무엇을 줄여주는가?"></label>
 
-function resetChecks(){
-  if(!confirm('체크한 항목을 모두 초기화할까요? 메모는 유지됩니다.')) return;
-  const state = getState();
-  state.checks = {};
-  setState(state);
-  $$('input[type="checkbox"][data-check-id]').forEach(b=>b.checked=false);
-  updateProgress();
-  showToast('체크를 초기화했습니다.');
-}
+      <div class="check-card">
+        <h3>30초 체크리스트</h3>
+        <div class="check-grid" id="checks"></div>
+      </div>
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  $('#installBtn').style.display = 'inline-flex';
-});
-$('#installBtn').addEventListener('click', async () => {
-  if(!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  $('#installBtn').style.display = 'none';
-});
+      <div class="score-grid">
+        <label>사업 연관성 <input id="bizScore" type="range" min="1" max="5" value="3"><span id="bizScoreVal">3</span></label>
+        <label>새로움 <input id="newScore" type="range" min="1" max="5" value="3"><span id="newScoreVal">3</span></label>
+        <label>적용 가능성 <input id="fitScore" type="range" min="1" max="5" value="3"><span id="fitScoreVal">3</span></label>
+      </div>
 
-function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
-if(isIOS()) $('#iosHint').style.display = 'block';
-if('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+      <label>시장 신호/인사이트<textarea id="insight" rows="4" placeholder="반복적으로 보이는 트렌드, 표현 방식, 포장 구조, 제형 변화 등"></textarea></label>
+      <label>당사 적용 아이디어<textarea id="applyIdea" rows="3" placeholder="제품기획, 패키지, 원료, 수출 전략 등에 적용 가능한 포인트"></textarea></label>
+      <label>추가 확인 필요<textarea id="questions" rows="3" placeholder="프라이빗 라벨 가능 여부, MOQ, 자료 요청 등"></textarea></label>
 
-render();
-setupSearch();
-setupTabs();
-$('#saveNoteBtn').addEventListener('click', () => { saveNotes(); showToast(); });
-$('#copyNoteBtn').addEventListener('click', async () => { saveNotes(); const s=getState(); await navigator.clipboard.writeText(`[${s.notes.boothName || '부스명'}]\n${s.notes.globalNote || ''}`); showToast('메모를 복사했습니다.'); });
-$('#globalNote').addEventListener('input', saveNotes);
-$('#boothName').addEventListener('input', saveNotes);
-$('#exportBtnTop').addEventListener('click', exportNotes);
-$('#resetBtnTop').addEventListener('click', resetChecks);
-$('#toTopBtn').addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
-</script>
+      <div class="media-card">
+        <div class="section-title compact">
+          <div>
+            <h3>사진 첨부</h3>
+            <p class="hint">여러 장 추가 가능합니다. 기종에 따라 카메라/앨범 선택 방식이 다를 수 있습니다.</p>
+          </div>
+        </div>
+        <div class="button-row wrap media-buttons">
+          <label class="secondary file-label">앨범에서 여러 장 추가
+            <input id="photoInput" type="file" accept="image/*" multiple>
+          </label>
+          <label class="primary file-label">카메라로 촬영
+            <input id="cameraInput" type="file" accept="image/*" capture="environment">
+          </label>
+        </div>
+        <div id="photoPreview" class="photo-preview"></div>
+      </div>
+
+      <div class="media-card">
+        <div class="section-title compact">
+          <div>
+            <h3>녹음 메모</h3>
+            <p class="hint">녹음 권한을 허용해야 합니다. 브라우저/OS 버전에 따라 녹음 형식이 달라질 수 있습니다.</p>
+          </div>
+        </div>
+        <div class="button-row wrap">
+          <button type="button" id="recordBtn" class="secondary">● 녹음 시작</button>
+          <span id="recordStatus" class="record-status">대기 중</span>
+        </div>
+        <div id="audioList" class="audio-list"></div>
+      </div>
+
+      <div class="form-grid">
+        <label>상태
+          <select id="status">
+            <option value="draft">검토 전</option>
+            <option value="watch">추적 필요</option>
+            <option value="report">보고 포함</option>
+          </select>
+        </label>
+        <label>우선순위
+          <select id="priority">
+            <option value="C">C</option>
+            <option value="B">B</option>
+            <option value="A">A</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" id="deleteBoothBtn" class="danger hidden">삭제</button>
+        <div class="spacer"></div>
+        <button type="button" id="cancelBtn" class="secondary">취소</button>
+        <button type="submit" class="primary">저장</button>
+      </div>
+    </form>
+  </dialog>
+
+  <nav class="bottom-nav" aria-label="주요 화면">
+    <button class="nav-btn active" data-page="guidePage">가이드</button>
+    <button class="nav-btn" data-page="boothPage">부스 기록</button>
+    <button class="nav-btn" data-page="reportPage">보고서</button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
 </body>
 </html>

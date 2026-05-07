@@ -1,20 +1,35 @@
-# Interzoo 참관 가이드 PWA
+# 전시회 참관 가이드 v5
 
-업로드된 프리 미팅 문서를 기반으로 만든 모바일용 웹앱/PWA입니다.
+Interzoo 현장용 PWA입니다.
 
-## 구성
-- `index.html` : 앱 본문
-- `manifest.json` : PWA 설치 정보
-- `sw.js` : 오프라인 캐시
-- `icons/` : 앱 아이콘
+## 화면 구성
 
-## GitHub Pages 업로드 방법
-1. GitHub에서 새 repository를 만듭니다.
-2. 이 폴더의 파일 전체를 업로드합니다.
-3. Repository의 `Settings` → `Pages`로 이동합니다.
-4. `Build and deployment`에서 `Deploy from a branch`를 선택합니다.
-5. Branch를 `main` / folder를 `/root`로 선택 후 저장합니다.
-6. 생성된 GitHub Pages 주소를 휴대폰 Safari/Chrome으로 열고 홈 화면에 추가 또는 설치합니다.
+1. 참관 가이드
+   - 참관 목적
+   - 핵심 질문
+   - 현장 체크리스트
+   - 부스 A/B/C 우선순위
+   - 패키지 디자인 체크리스트
+   - OEM/ODM/PB 상담 체크리스트
 
-## 참고
-PWA 설치는 일반적으로 HTTPS 환경에서 정상 작동합니다. GitHub Pages는 HTTPS를 제공하므로 설치 테스트에 적합합니다.
+2. 부스 기록
+   - 브랜드/국가/부스번호/카테고리 기록
+   - 사진 여러 장 첨부
+   - 카메라 촬영
+   - 녹음 메모
+   - 점수화 및 우선순위 지정
+
+3. 보고서
+   - 보고 포함 또는 A등급 부스를 기준으로 자동 요약
+   - TXT 저장
+   - JSON 백업/복원
+
+## GitHub Pages 업로드
+
+압축을 풀고 폴더 안의 파일 전체를 기존 GitHub repository에 덮어쓰기 업로드하면 됩니다.
+기존 현장노트 데이터를 자동으로 새 저장 키로 가져오도록 처리했습니다. 같은 GitHub Pages 주소에서 업데이트하면 기존 부스 기록을 이어서 사용할 수 있습니다.
+
+## 설치
+
+- iPhone: Safari로 접속 → 공유 버튼 → 홈 화면에 추가
+- Galaxy/Android: Chrome으로 접속 → 설치 또는 홈 화면에 추가
