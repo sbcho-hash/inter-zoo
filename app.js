@@ -66,6 +66,149 @@ const GUIDE = {
   ]
 };
 
+
+const PHRASE_CATEGORIES = [
+  {
+    id:"start",
+    title:"① 첫 인사 / 자기소개",
+    desc:"부스에 들어가 처음 말을 걸 때 쓰는 표현입니다.",
+    phrases:[
+      {ko:"안녕하세요. 잠깐 제품을 살펴봐도 될까요?", en:"Hello. May I take a quick look at your products?", note:"가볍게 부스 진입"},
+      {ko:"저는 펫푸드 제품기획 관점에서 전시를 둘러보고 있습니다.", en:"I’m visiting the show from a pet food product planning perspective.", note:"방문 목적 설명"},
+      {ko:"이 제품에 대해 간단히 설명해 주실 수 있을까요?", en:"Could you briefly explain this product to me?", note:"설명 요청"},
+      {ko:"몇 가지 질문을 드려도 될까요?", en:"May I ask you a few questions?", note:"상담 시작"},
+      {ko:"명함을 드려도 될까요?", en:"May I give you my business card?", note:"명함 교환"},
+      {ko:"담당자분 명함을 받을 수 있을까요?", en:"Could I have your business card?", note:"후속 연락용"},
+      {ko:"사진을 찍어도 괜찮을까요?", en:"Would it be okay if I take some photos?", note:"촬영 전 확인"}
+    ]
+  },
+  {
+    id:"product",
+    title:"② 제품 기본 정보 문의",
+    desc:"제품의 용도, 대상, 카테고리, 차별점을 빠르게 확인하는 문장입니다.",
+    phrases:[
+      {ko:"이 제품의 핵심 차별점은 무엇인가요?", en:"What is the key point of differentiation for this product?", note:"차별점 확인"},
+      {ko:"이 제품은 어떤 반려동물을 대상으로 하나요?", en:"Which pets is this product intended for?", note:"타깃 확인"},
+      {ko:"이 제품은 주식인가요, 보조식인가요, 간식인가요?", en:"Is this a complete feed, a complementary feed, or a treat?", note:"제품 유형"},
+      {ko:"주요 급여 상황은 언제인가요?", en:"What is the main feeding occasion for this product?", note:"사용 상황"},
+      {ko:"소비자가 이 제품을 선택하는 가장 큰 이유는 무엇인가요?", en:"What is the main reason consumers choose this product?", note:"구매 이유"},
+      {ko:"가장 잘 팔리는 SKU는 어떤 것인가요?", en:"Which SKU is your best seller?", note:"시장 반응"},
+      {ko:"신제품인가요, 기존 제품인가요?", en:"Is this a new product or an existing product?", note:"신제품 여부"},
+      {ko:"이 제품은 어떤 국가에서 판매되고 있나요?", en:"In which countries is this product currently sold?", note:"판매 국가"}
+    ]
+  },
+  {
+    id:"function",
+    title:"③ 기능성 / 원료 / 제형",
+    desc:"기능성 제품의 표현 방식, 원료 구성, 제형 차별점을 확인할 때 사용합니다.",
+    phrases:[
+      {ko:"이 제품은 어떤 기능을 중심으로 설계되었나요?", en:"What function or benefit is this product designed around?", note:"기능성 방향"},
+      {ko:"주요 기능성 원료는 무엇인가요?", en:"What are the key functional ingredients?", note:"핵심 원료"},
+      {ko:"기능성 원료의 함량을 공개하고 있나요?", en:"Do you disclose the dosage of the functional ingredients?", note:"함량 공개 여부"},
+      {ko:"이 기능은 원료 중심으로 설명하나요, 소비자 문제 중심으로 설명하나요?", en:"Do you communicate this benefit through ingredients or through consumer problems?", note:"표현 방식"},
+      {ko:"전면 패키지에서는 어떤 메시지를 가장 강조하나요?", en:"What message do you emphasize most on the front of the package?", note:"전면 메시지"},
+      {ko:"이 제형을 선택한 이유가 있나요?", en:"Is there a specific reason you chose this format?", note:"제형 의도"},
+      {ko:"기호성 테스트를 진행했나요?", en:"Have you conducted any palatability tests?", note:"기호성"},
+      {ko:"안정성이나 유통기한 테스트를 진행했나요?", en:"Have you conducted stability or shelf-life testing?", note:"안정성"},
+      {ko:"수의사나 전문가와 함께 개발한 제품인가요?", en:"Was this product developed with veterinarians or other experts?", note:"전문성"}
+    ]
+  },
+  {
+    id:"package",
+    title:"④ 패키지 / 표시 / 수출 표현",
+    desc:"패키지 구조, 표시 문구, 수출용 표현을 확인할 때 사용합니다.",
+    phrases:[
+      {ko:"이 패키지에서 가장 중요하게 설계한 부분은 무엇인가요?", en:"What was the most important design consideration for this package?", note:"디자인 의도"},
+      {ko:"기능별로 컬러나 아이콘을 다르게 사용하나요?", en:"Do you use different colors or icons by function?", note:"SKU 구분"},
+      {ko:"소비자가 제품 용도를 빠르게 이해하도록 어떤 요소를 사용했나요?", en:"What elements help consumers quickly understand the product use?", note:"직관성"},
+      {ko:"이 표현은 어느 국가의 표시 기준을 기준으로 작성했나요?", en:"Which market’s labeling requirements is this wording based on?", note:"표시 기준"},
+      {ko:"기능 표현은 직접적인 효능 표현인가요, support 표현인가요?", en:"Are these claims direct efficacy claims or support-style claims?", note:"클레임 강도"},
+      {ko:"수출용 패키지는 별도로 운영하나요?", en:"Do you have a separate package design for export markets?", note:"수출 패키지"},
+      {ko:"영문 전면 문구는 어떻게 정하나요?", en:"How do you decide the English front-of-pack wording?", note:"전면 문구"},
+      {ko:"지속가능성 관련 소재나 메시지가 포함되어 있나요?", en:"Do you use any sustainable packaging materials or related messaging?", note:"지속가능성"}
+    ]
+  },
+  {
+    id:"oem",
+    title:"⑤ OEM / ODM / PB 상담",
+    desc:"사업화 가능성이 있는 업체에서 바로 확인할 질문입니다.",
+    phrases:[
+      {ko:"PB, OEM 또는 ODM 생산이 가능한가요?", en:"Do you offer private label, OEM, or ODM production?", note:"거래 형태"},
+      {ko:"최소 발주 수량은 어느 정도인가요?", en:"What is your minimum order quantity?", note:"MOQ"},
+      {ko:"초도 생산 기준 MOQ와 반복 생산 MOQ가 다른가요?", en:"Is the MOQ different for the first order and repeat orders?", note:"초도/반복"},
+      {ko:"제형이나 원료를 커스터마이징할 수 있나요?", en:"Can the format or ingredients be customized?", note:"커스터마이징"},
+      {ko:"패키지 디자인도 함께 개발 가능한가요?", en:"Can you also support package design development?", note:"패키지 지원"},
+      {ko:"샘플 개발에는 보통 얼마나 걸리나요?", en:"How long does sample development usually take?", note:"샘플 리드타임"},
+      {ko:"본생산 리드타임은 어느 정도인가요?", en:"What is the lead time for mass production?", note:"본생산"},
+      {ko:"기능성 원료 함량을 조정할 수 있나요?", en:"Can the dosage of functional ingredients be adjusted?", note:"포뮬러 조정"},
+      {ko:"한국으로 수출한 경험이 있나요?", en:"Do you have experience exporting to Korea?", note:"한국 수출"},
+      {ko:"아시아 시장에 수출 중인 제품이 있나요?", en:"Do you currently export any products to Asian markets?", note:"아시아 수출"},
+      {ko:"단가 범위를 대략적으로 알려주실 수 있을까요?", en:"Could you give me a rough price range?", note:"대략 단가"},
+      {ko:"가격은 EXW, FOB, CIF 중 어떤 조건 기준인가요?", en:"Is the price based on EXW, FOB, or CIF terms?", note:"가격 조건"}
+    ]
+  },
+  {
+    id:"quality",
+    title:"⑥ 품질 / 인증 / 자료 확인",
+    desc:"거래 검토 전 필요한 인증, 시험자료, 원료자료를 요청하는 표현입니다.",
+    phrases:[
+      {ko:"보유하고 있는 인증은 무엇인가요?", en:"What certifications do you have?", note:"인증"},
+      {ko:"제조시설 기준이나 품질관리 기준을 알려주실 수 있나요?", en:"Could you explain your manufacturing and quality control standards?", note:"품질 기준"},
+      {ko:"COA나 제품 사양서를 받을 수 있을까요?", en:"Could you share the COA or product specification sheet?", note:"COA/사양서"},
+      {ko:"원료별 원산지 정보를 제공할 수 있나요?", en:"Can you provide the country of origin for each ingredient?", note:"원산지"},
+      {ko:"알러젠 정보나 주의사항 자료가 있나요?", en:"Do you have allergen information or precautionary statements?", note:"알러젠"},
+      {ko:"유통기한은 얼마나 되나요?", en:"What is the shelf life of this product?", note:"유통기한"},
+      {ko:"보관 조건은 어떻게 되나요?", en:"What are the recommended storage conditions?", note:"보관 조건"},
+      {ko:"제품 테스트 자료를 공유받을 수 있을까요?", en:"Could you share any product test results?", note:"시험자료"},
+      {ko:"규제 검토를 위해 표시 문구와 원료 자료가 필요합니다.", en:"We need the labeling text and ingredient documents for regulatory review.", note:"규제 검토"}
+    ]
+  },
+  {
+    id:"sample",
+    title:"⑦ 샘플 / 가격 / 거래 조건",
+    desc:"샘플 요청, 가격 조건, 결제 조건을 확인할 때 사용합니다.",
+    phrases:[
+      {ko:"샘플을 받을 수 있을까요?", en:"Would it be possible to receive samples?", note:"샘플 요청"},
+      {ko:"샘플 비용이 있나요?", en:"Is there a sample fee?", note:"샘플 비용"},
+      {ko:"샘플 배송은 어떻게 진행되나요?", en:"How do you usually arrange sample shipping?", note:"배송"},
+      {ko:"대략적인 단가표를 받을 수 있을까요?", en:"Could you share a rough price list?", note:"단가표"},
+      {ko:"수량별 가격 차이가 있나요?", en:"Do you have different prices by order quantity?", note:"수량별 단가"},
+      {ko:"결제 조건은 어떻게 되나요?", en:"What are your payment terms?", note:"결제 조건"},
+      {ko:"독점 공급이나 지역 독점도 협의 가능한가요?", en:"Would exclusive supply or regional exclusivity be negotiable?", note:"독점 여부"},
+      {ko:"한국 내 유통 파트너가 이미 있나요?", en:"Do you already have a distribution partner in Korea?", note:"기존 파트너"}
+    ]
+  },
+  {
+    id:"followup",
+    title:"⑧ 자료 요청 / 후속 연락",
+    desc:"상담 후 메일, 브로슈어, 카탈로그, 담당자 연결을 요청할 때 씁니다.",
+    phrases:[
+      {ko:"상담 내용을 이메일로 이어서 논의해도 될까요?", en:"Could we continue this discussion by email?", note:"메일 전환"},
+      {ko:"제품 카탈로그를 이메일로 보내주실 수 있을까요?", en:"Could you send me your product catalog by email?", note:"카탈로그"},
+      {ko:"MOQ, 단가, 리드타임 정보를 정리해서 보내주실 수 있을까요?", en:"Could you send us the MOQ, price range, and lead time information?", note:"핵심 거래정보"},
+      {ko:"제품 사양서와 원료 자료를 함께 보내주시면 감사하겠습니다.", en:"It would be helpful if you could also send the product specification and ingredient documents.", note:"자료 패키지"},
+      {ko:"담당자 이메일 주소를 알려주실 수 있을까요?", en:"Could you share the contact person’s email address?", note:"담당자 확인"},
+      {ko:"전시 후에 온라인 미팅을 진행할 수 있을까요?", en:"Could we arrange an online meeting after the exhibition?", note:"후속 미팅"},
+      {ko:"오늘 논의한 내용을 내부 검토 후 다시 연락드리겠습니다.", en:"We will review what we discussed today internally and get back to you.", note:"마무리"},
+      {ko:"좋은 설명 감사합니다. 자료를 검토한 뒤 연락드리겠습니다.", en:"Thank you for the detailed explanation. We will review the materials and contact you afterwards.", note:"정중한 종료"}
+    ]
+  },
+  {
+    id:"clarify",
+    title:"⑨ 다시 묻기 / 천천히 말해달라고 하기",
+    desc:"영어가 빠르거나 내용을 놓쳤을 때 부담 없이 쓰는 표현입니다.",
+    phrases:[
+      {ko:"죄송하지만 조금 천천히 말씀해 주실 수 있을까요?", en:"Sorry, could you speak a little more slowly?", note:"천천히 요청"},
+      {ko:"제가 정확히 이해했는지 확인해도 될까요?", en:"May I check if I understood correctly?", note:"이해 확인"},
+      {ko:"방금 말씀하신 내용을 다시 한 번 설명해 주실 수 있을까요?", en:"Could you explain that one more time?", note:"반복 요청"},
+      {ko:"그 부분을 이메일로도 보내주실 수 있을까요?", en:"Could you also send that information by email?", note:"자료화 요청"},
+      {ko:"제가 메모할 수 있도록 핵심만 다시 말씀해 주실 수 있을까요?", en:"Could you repeat the key points so I can take notes?", note:"메모용"},
+      {ko:"혹시 더 쉬운 표현으로 설명해 주실 수 있을까요?", en:"Could you explain it in simpler terms?", note:"쉬운 설명"},
+      {ko:"이 부분은 내부 확인이 필요할 것 같습니다.", en:"I think we will need to review this internally.", note:"즉답 회피"}
+    ]
+  }
+];
+
 let booths = load();
 let editingPhotos = [];
 let editingAudios = [];
@@ -97,9 +240,13 @@ function escapeHtml(s="") { return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;
 function init(){
   renderGuide();
   renderReportTemplates();
+  renderPhrases();
   $("checks").innerHTML = CHECKS.map((c,i)=>`<label class="check"><input type="checkbox" value="${escapeHtml(c)}" id="check${i}">${escapeHtml(c)}</label>`).join("");
   $("tagFilter").innerHTML += TAGS.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
   document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.page)));
+  if($("phraseSearch")) $("phraseSearch").oninput = renderPhrases;
+  if($("phraseCategory")) $("phraseCategory").onchange = renderPhrases;
+  document.querySelectorAll(".phrase-jump").forEach(btn=>btn.addEventListener("click",()=>{ showPage("phrasePage"); if($("phraseCategory")){ $("phraseCategory").value = btn.dataset.phraseTarget; renderPhrases(); } }));
   $("startBoothBtn").onclick = () => { showPage("boothPage"); openDialog(); };
   $("goReportBtn").onclick = () => showPage("reportPage");
   $("newBoothBtn").onclick = () => openDialog();
@@ -207,6 +354,89 @@ function renderGuide(){
     setGuideState(state);
     showToast(e.target.checked ? "체크했습니다." : "체크 해제했습니다.");
   }));
+}
+
+
+function renderPhrases(){
+  const searchEl = $("phraseSearch");
+  const categoryEl = $("phraseCategory");
+  const root = $("phraseRoot");
+  if(!root || !categoryEl) return;
+  if(!categoryEl.dataset.ready){
+    categoryEl.innerHTML = '<option value="all">전체 상황</option>' + PHRASE_CATEGORIES.map(c=>`<option value="${escapeHtml(c.id)}">${escapeHtml(c.title.replace(/^\d+\.\s*/, ""))}</option>`).join("");
+    categoryEl.dataset.ready = "1";
+  }
+  const q = (searchEl?.value || "").trim().toLowerCase();
+  const selected = categoryEl.value || "all";
+  const categories = PHRASE_CATEGORIES.map(cat=>{
+    const filtered = cat.phrases.filter(p=>{
+      const hay = [cat.title, cat.desc, p.ko, p.en, p.note].join(" ").toLowerCase();
+      return (selected === "all" || selected === cat.id) && (!q || hay.includes(q));
+    });
+    return {...cat, phrases: filtered};
+  }).filter(cat=>cat.phrases.length);
+  root.innerHTML = categories.length ? categories.map(phraseCategoryHtml).join("") : `<div class="card phrase-empty"><h3>검색 결과가 없습니다.</h3><p class="hint">다른 키워드로 검색해 보세요. 예: sample, MOQ, ingredient, package</p></div>`;
+  document.querySelectorAll("[data-copy-phrase]").forEach(btn=>btn.onclick=(e)=>{ e.stopPropagation(); copyPhrase(btn.dataset.copyPhrase); });
+  document.querySelectorAll("[data-speak-phrase]").forEach(btn=>btn.onclick=(e)=>{ e.stopPropagation(); speakPhrase(btn.dataset.speakPhrase, btn.dataset.speakRate || "1"); });
+}
+function phraseCategoryHtml(cat){
+  return `<section class="phrase-section" id="phrase-${escapeHtml(cat.id)}">
+    <div class="section-title"><div><p class="eyebrow">Conversation</p><h2>${escapeHtml(cat.title)}</h2><p class="hint">${escapeHtml(cat.desc)}</p></div></div>
+    <div class="phrase-list">${cat.phrases.map(phraseCardHtml).join("")}</div>
+  </section>`;
+}
+function phraseCardHtml(p){
+  return `<article class="phrase-card card" data-copy-phrase="${escapeHtml(p.en)}" tabindex="0" role="button" aria-label="영어 문장 복사">
+    <div class="phrase-note">${escapeHtml(p.note || "")}</div>
+    <p class="phrase-ko">${escapeHtml(p.ko)}</p>
+    <p class="phrase-en">${escapeHtml(p.en)}</p>
+    <div class="phrase-actions">
+      <button type="button" class="secondary copy-mini" data-speak-phrase="${escapeHtml(p.en)}" data-speak-rate="1">듣기</button>
+      <button type="button" class="secondary copy-mini" data-speak-phrase="${escapeHtml(p.en)}" data-speak-rate="0.82">천천히</button>
+      <button type="button" class="secondary copy-mini" data-copy-phrase="${escapeHtml(p.en)}">영어 복사</button>
+    </div>
+  </article>`;
+}
+async function copyPhrase(text){
+  try { await navigator.clipboard.writeText(text); }
+  catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+  }
+  showToast("영어 문장을 복사했습니다.");
+}
+
+let currentUtterance = null;
+function speakPhrase(text, rate = 1){
+  if(!("speechSynthesis" in window)){
+    showToast("이 브라우저에서는 음성 듣기를 지원하지 않습니다.");
+    return;
+  }
+  const synth = window.speechSynthesis;
+  const safeText = String(text || "").trim();
+  if(!safeText) return;
+  if(synth.speaking){ synth.cancel(); }
+  const utter = new SpeechSynthesisUtterance(safeText);
+  currentUtterance = utter;
+  utter.lang = "en-US";
+  utter.rate = Number(rate) || 1;
+  utter.pitch = 1;
+  utter.volume = 1;
+  const voices = synth.getVoices ? synth.getVoices() : [];
+  const preferred = voices.find(v => /^en(-|_)/i.test(v.lang) && /female|samantha|ava|serena|karen|victoria|zira|aria/i.test((v.name||"")))
+    || voices.find(v => /^en(-|_)/i.test(v.lang) && /US|United States/i.test(v.lang + " " + (v.name||"")))
+    || voices.find(v => /^en(-|_)/i.test(v.lang));
+  if(preferred) utter.voice = preferred;
+  utter.onstart = () => showToast(utter.rate < 0.95 ? "천천히 읽어드립니다." : "영어 문장을 읽어드립니다.");
+  utter.onerror = () => showToast("음성 재생 중 오류가 발생했습니다.");
+  synth.speak(utter);
+}
+if ("speechSynthesis" in window && window.speechSynthesis.onvoiceschanged !== undefined) {
+  window.speechSynthesis.onvoiceschanged = () => {};
 }
 
 function renderReportTemplates(){

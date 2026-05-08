@@ -132,6 +132,42 @@
         <p class="hint">데이터는 현재 기기의 브라우저 저장소에 보관됩니다. 전시 전후로 JSON 백업을 권장합니다.</p>
       </section>
     </section>
+
+    <section id="phrasePage" class="page" aria-labelledby="phraseTitle">
+      <section class="hero card phrase-hero">
+        <div>
+          <p class="eyebrow">네 번째 페이지 · 회화</p>
+          <h2 id="phraseTitle">부스 방문 시 바로 꺼내 쓰는 전시회 회화</h2>
+          <p>인사, 제품 문의, OEM/ODM 상담, 자료 요청, 팔로업까지 상황별 문장을 빠르게 확인하고 복사할 수 있습니다.</p>
+        </div>
+        <div class="hero-actions-vertical">
+          <button class="primary big phrase-jump" data-phrase-target="oem">OEM 상담</button>
+          <button class="secondary phrase-jump" data-phrase-target="followup">자료 요청</button>
+        </div>
+      </section>
+
+      <section class="phrase-toolbar card flat-card">
+        <label class="search-wrap">
+          <span>문장 검색</span>
+          <input id="phraseSearch" placeholder="예: MOQ, price, sample, ingredient, package">
+        </label>
+        <label>
+          <span>상황</span>
+          <select id="phraseCategory" aria-label="회화 상황 필터">
+            <option value="all">전체 상황</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="phrase-tip card">
+        <p class="eyebrow">사용 팁</p>
+        <h3>문장을 누르면 영어 문장이 복사됩니다.</h3>
+        <p class="hint">이제 각 문장 아래의 <strong>듣기</strong> 버튼으로 영어 발음을 바로 들을 수 있습니다. 현장에서는 완벽한 문장보다 핵심 질문을 짧게 던지는 것이 중요합니다. 필요한 경우 복사해서 번역기나 메신저에도 바로 붙여 넣을 수 있습니다.</p>
+      </section>
+
+      <div id="phraseRoot" class="phrase-root"></div>
+    </section>
+
   </main>
 
   <dialog id="boothDialog">
@@ -232,6 +268,7 @@
     <button class="nav-btn active" data-page="guidePage">가이드</button>
     <button class="nav-btn" data-page="boothPage">부스 기록</button>
     <button class="nav-btn" data-page="reportPage">보고서</button>
+    <button class="nav-btn" data-page="phrasePage">회화</button>
   </nav>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>

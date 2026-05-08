@@ -1,7 +1,7 @@
 {
   "name": "전시회 참관 가이드",
   "short_name": "참관가이드",
-  "description": "Interzoo 현장 참관 가이드, 부스 기록, 보고서 작성 PWA",
+  "description": "전시회 참관 가이드, 부스 기록, 보고서 작성, 현장 회화 PWA",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
