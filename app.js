@@ -209,6 +209,96 @@ const PHRASE_CATEGORIES = [
   }
 ];
 
+
+const INTERPRETER_SHORTCUTS = [
+  {ko:"이 제품의 MOQ는 어떻게 되나요?", en:"What is the MOQ for this product?"},
+  {ko:"샘플을 받을 수 있을까요?", en:"Would it be possible to receive samples?"},
+  {ko:"OEM 또는 ODM 생산이 가능한가요?", en:"Do you offer OEM or ODM manufacturing?"},
+  {ko:"패키지 디자인을 커스터마이징할 수 있나요?", en:"Can the package design be customized?"},
+  {ko:"기능성 원료나 함량을 조정할 수 있나요?", en:"Can the functional ingredients or their amounts be adjusted?"},
+  {ko:"제품 사양서와 원료 자료를 이메일로 보내주실 수 있을까요?", en:"Could you send the product specification and ingredient documents by email?"},
+  {ko:"대략적인 단가와 리드타임을 알려주실 수 있을까요?", en:"Could you share the approximate price range and lead time?"},
+  {ko:"한국에 이미 유통 파트너가 있나요?", en:"Do you already have a distribution partner in Korea?"},
+  {ko:"제가 정확히 이해했는지 확인해도 될까요?", en:"May I check if I understood correctly?"},
+  {ko:"조금 천천히 말씀해 주실 수 있을까요?", en:"Could you speak a little more slowly?"}
+];
+
+let interpreterDirection = "ko-en";
+let recognition = null;
+let isListening = false;
+
+const KO_EN_RULES = [
+  [/이 제품의?\s*MOQ.*(어떻게|얼마|몇|궁금)/, "What is the MOQ for this product?"],
+  [/MOQ.*(알려|궁금|확인)/, "Could you tell me the MOQ for this product?"],
+  [/샘플.*(받|가능|있을까요|줄 수)/, "Would it be possible to receive samples?"],
+  [/샘플.*비용/, "Is there a sample fee?"],
+  [/(OEM|오이엠).*(가능|하나요|되나요)/i, "Do you offer OEM manufacturing?"],
+  [/(ODM|오디엠).*(가능|하나요|되나요)/i, "Do you offer ODM manufacturing?"],
+  [/(OEM|ODM|PB|피비).*(가능|하나요|되나요)/i, "Do you offer OEM, ODM, or private label manufacturing?"],
+  [/패키지.*(커스터마이징|변경|수정|가능)/, "Can the package design be customized?"],
+  [/원료.*(변경|조정|가능)/, "Can the ingredients be adjusted?"],
+  [/함량.*(변경|조정|가능)/, "Can the ingredient amounts be adjusted?"],
+  [/기능성.*(원료|성분).*(변경|조정|가능)/, "Can the functional ingredients be adjusted?"],
+  [/단가.*(알려|공유|궁금)/, "Could you share the approximate price range?"],
+  [/가격.*(알려|공유|궁금)/, "Could you share the approximate price range?"],
+  [/리드타임.*(알려|공유|궁금)/, "Could you share the lead time?"],
+  [/유통기한.*(얼마|어떻게|궁금)/, "What is the shelf life of this product?"],
+  [/보관.*조건/, "What are the recommended storage conditions?"],
+  [/원산지.*(어디|궁금|알려)/, "What is the country of origin for the main ingredients?"],
+  [/인증.*(있|보유|무엇)/, "What certifications do you have?"],
+  [/수출.*(국가|어디|경험)/, "Which countries do you currently export to?"],
+  [/한국.*(파트너|유통)/, "Do you already have a distribution partner in Korea?"],
+  [/자료.*(이메일|메일).*(보내|공유)/, "Could you send the materials by email?"],
+  [/사양서.*(보내|공유)/, "Could you send the product specification?"],
+  [/원료.*자료.*(보내|공유)/, "Could you send the ingredient documents?"],
+  [/카탈로그.*(보내|공유)/, "Could you send me your product catalog?"],
+  [/온라인.*미팅/, "Could we arrange an online meeting after the exhibition?"],
+  [/천천히.*말/, "Could you speak a little more slowly?"],
+  [/다시.*설명/, "Could you explain that one more time?"],
+  [/정확히.*이해/, "May I check if I understood correctly?"],
+  [/내부.*검토/, "We will review this internally and get back to you."],
+  [/감사.*검토.*연락/, "Thank you. We will review the materials and contact you afterwards."]
+];
+
+const EN_KO_RULES = [
+  [/what.*moq|minimum order quantity/i, "최소 발주 수량은 어느 정도인지 묻는 표현입니다."],
+  [/sample/i, "샘플 제공 가능 여부, 샘플 비용 또는 배송 방식과 관련된 내용입니다."],
+  [/oem/i, "OEM 생산 가능 여부와 관련된 내용입니다."],
+  [/odm/i, "ODM 개발/생산 가능 여부와 관련된 내용입니다."],
+  [/private label|pb/i, "PB 또는 자체 브랜드 생산 가능 여부와 관련된 내용입니다."],
+  [/custom/i, "커스터마이징 또는 변경 가능 여부와 관련된 내용입니다."],
+  [/ingredient/i, "원료 또는 성분 자료와 관련된 내용입니다."],
+  [/functional/i, "기능성 원료 또는 기능성 제품 설계와 관련된 내용입니다."],
+  [/price|cost|quotation/i, "가격, 단가 또는 견적과 관련된 내용입니다."],
+  [/lead time/i, "샘플 또는 생산 리드타임과 관련된 내용입니다."],
+  [/shelf life/i, "유통기한과 관련된 내용입니다."],
+  [/storage/i, "보관 조건과 관련된 내용입니다."],
+  [/certificate|certification|certified/i, "인증 또는 품질 기준과 관련된 내용입니다."],
+  [/export/i, "수출 경험 또는 수출 국가와 관련된 내용입니다."],
+  [/distributor|distribution partner/i, "유통 파트너 또는 판매 채널과 관련된 내용입니다."],
+  [/email|send.*material|catalog/i, "이메일로 자료 또는 카탈로그를 보내겠다는 내용입니다."],
+  [/speak.*slow/i, "조금 천천히 말해달라는 표현입니다."],
+  [/explain.*again|one more time/i, "다시 한 번 설명해달라는 표현입니다."]
+];
+
+const KO_EN_FALLBACK = {
+  "안녕하세요": "Hello.",
+  "감사합니다": "Thank you.",
+  "자료": "materials",
+  "샘플": "sample",
+  "단가": "price",
+  "가격": "price",
+  "리드타임": "lead time",
+  "유통기한": "shelf life",
+  "보관 조건": "storage conditions",
+  "원료": "ingredient",
+  "성분": "ingredient",
+  "사양서": "product specification",
+  "인증": "certification",
+  "수출": "export",
+  "한국": "Korea"
+};
+
 let booths = load();
 let editingPhotos = [];
 let editingAudios = [];
@@ -437,6 +527,147 @@ function speakPhrase(text, rate = 1){
 }
 if ("speechSynthesis" in window && window.speechSynthesis.onvoiceschanged !== undefined) {
   window.speechSynthesis.onvoiceschanged = () => {};
+}
+
+
+function initInterpreter(){
+  if(!$("interpreterInput")) return;
+  renderInterpreterShortcuts();
+  document.querySelectorAll("[data-translate-direction]").forEach(btn=>{
+    btn.addEventListener("click", ()=>setInterpreterDirection(btn.dataset.translateDirection));
+  });
+  $("swapLangBtn").onclick = () => setInterpreterDirection(interpreterDirection === "ko-en" ? "en-ko" : "ko-en");
+  $("startListenBtn").onclick = () => { showPage("interpreterPage"); toggleInterpreterListening(); };
+  $("listenBtn").onclick = toggleInterpreterListening;
+  $("translateBtn").onclick = runInterpreterTranslate;
+  $("clearInterpreterBtn").onclick = clearInterpreter;
+  $("speakTranslationBtn").onclick = () => speakText($("interpreterOutput").textContent, interpreterDirection === "ko-en" ? 1 : 0.95);
+  $("copyTranslationBtn").onclick = () => copyPhrase($("interpreterOutput").textContent);
+  $("largeTranslationBtn").onclick = () => openPhraseDialog({
+    ko: interpreterDirection === "ko-en" ? ($("interpreterInput").value || "") : ($("interpreterOutput").textContent || ""),
+    en: interpreterDirection === "ko-en" ? ($("interpreterOutput").textContent || "") : ($("interpreterInput").value || ""),
+    note: interpreterDirection === "ko-en" ? "한국어 → 영어" : "English → Korean"
+  });
+  $("interpreterInput").addEventListener("keydown", e=>{
+    if((e.ctrlKey || e.metaKey) && e.key === "Enter") runInterpreterTranslate();
+  });
+  setInterpreterDirection(interpreterDirection);
+}
+function setInterpreterDirection(direction){
+  interpreterDirection = direction || "ko-en";
+  document.querySelectorAll("[data-translate-direction]").forEach(btn=>btn.classList.toggle("active", btn.dataset.translateDirection === interpreterDirection));
+  if($("sourceLabel")) $("sourceLabel").textContent = interpreterDirection === "ko-en" ? "한국어로 말하거나 입력하세요" : "Speak or type in English";
+  if($("targetLabel")) $("targetLabel").textContent = interpreterDirection === "ko-en" ? "영어 번역" : "한국어 번역";
+  if($("interpreterInput")){
+    $("interpreterInput").placeholder = interpreterDirection === "ko-en"
+      ? "예: 이 제품의 MOQ와 리드타임을 알려주실 수 있을까요?"
+      : "Example: Could you tell me the MOQ and lead time for this product?";
+  }
+  if($("interpreterStatus")) $("interpreterStatus").textContent = interpreterDirection === "ko-en"
+    ? "한국어 문장을 입력하면 전시회 상담용 영어 표현으로 바꿔줍니다."
+    : "영어 문장을 입력하면 핵심 의미를 한국어로 정리합니다.";
+}
+function renderInterpreterShortcuts(){
+  const root = $("interpreterShortcuts");
+  if(!root) return;
+  root.innerHTML = INTERPRETER_SHORTCUTS.map(item=>`
+    <button type="button" class="shortcut-card" data-ko="${escapeHtml(item.ko)}" data-en="${escapeHtml(item.en)}">
+      <span>${escapeHtml(item.ko)}</span>
+      <strong>${escapeHtml(item.en)}</strong>
+    </button>`).join("");
+  root.querySelectorAll(".shortcut-card").forEach(btn=>btn.addEventListener("click", ()=>{
+    if(interpreterDirection === "ko-en"){
+      $("interpreterInput").value = btn.dataset.ko;
+      $("interpreterOutput").textContent = btn.dataset.en;
+    } else {
+      $("interpreterInput").value = btn.dataset.en;
+      $("interpreterOutput").textContent = btn.dataset.ko;
+    }
+    showToast("빠른 문장을 불러왔습니다.");
+  }));
+}
+function runInterpreterTranslate(){
+  const input = ($("interpreterInput")?.value || "").trim();
+  if(!input){
+    showToast("통역할 문장을 입력해 주세요.");
+    return;
+  }
+  const output = interpreterDirection === "ko-en" ? translateKoToEn(input) : translateEnToKo(input);
+  $("interpreterOutput").textContent = output;
+  $("interpreterStatus").textContent = "번역 결과를 확인한 뒤, 필요하면 크게 보기 또는 듣기를 사용하세요.";
+}
+function translateKoToEn(text){
+  const normalized = text.replace(/\s+/g, " ").trim();
+  for(const [pattern, result] of KO_EN_RULES){
+    if(pattern.test(normalized)) return result;
+  }
+  const exact = INTERPRETER_SHORTCUTS.find(x => normalized.includes(x.ko.replace(/[?？]/g,"").slice(0,10)) || x.ko.includes(normalized));
+  if(exact) return exact.en;
+
+  let result = normalized;
+  Object.entries(KO_EN_FALLBACK).forEach(([ko,en])=>{
+    result = result.replaceAll(ko, en);
+  });
+  if(result !== normalized && !/[가-힣]/.test(result)) return result;
+  return `Could you help us with this: ${normalized}`;
+}
+function translateEnToKo(text){
+  const normalized = text.replace(/\s+/g, " ").trim();
+  for(const [pattern, result] of EN_KO_RULES){
+    if(pattern.test(normalized)) return result;
+  }
+  const exact = INTERPRETER_SHORTCUTS.find(x => normalized.toLowerCase().includes(x.en.toLowerCase().replace(/[?]/g,"").slice(0,16)) || x.en.toLowerCase().includes(normalized.toLowerCase()));
+  if(exact) return exact.ko;
+  return `상대방이 말한 내용: ${normalized}`;
+}
+function clearInterpreter(){
+  if($("interpreterInput")) $("interpreterInput").value = "";
+  if($("interpreterOutput")) $("interpreterOutput").textContent = "번역 결과가 여기에 표시됩니다.";
+  if($("interpreterStatus")) setInterpreterDirection(interpreterDirection);
+}
+function getSpeechRecognition(){
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+function toggleInterpreterListening(){
+  const Recognition = getSpeechRecognition();
+  if(!Recognition){
+    showToast("이 브라우저는 음성 인식을 지원하지 않습니다.");
+    if($("interpreterStatus")) $("interpreterStatus").textContent = "음성 인식이 지원되지 않으면 직접 입력 후 번역하기를 눌러주세요.";
+    return;
+  }
+  if(isListening && recognition){
+    recognition.stop();
+    return;
+  }
+  recognition = new Recognition();
+  recognition.lang = interpreterDirection === "ko-en" ? "ko-KR" : "en-US";
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  isListening = true;
+  updateListenButtons(true);
+  if($("interpreterStatus")) $("interpreterStatus").textContent = "듣는 중입니다. 문장을 말해 주세요.";
+  recognition.onresult = event => {
+    let transcript = "";
+    for(let i = event.resultIndex; i < event.results.length; i++){
+      transcript += event.results[i][0].transcript;
+    }
+    if($("interpreterInput")) $("interpreterInput").value = transcript.trim();
+    if(event.results[event.results.length - 1].isFinal) runInterpreterTranslate();
+  };
+  recognition.onerror = () => {
+    showToast("음성 인식이 중단되었습니다.");
+    if($("interpreterStatus")) $("interpreterStatus").textContent = "음성 인식이 원활하지 않으면 직접 입력해 주세요.";
+  };
+  recognition.onend = () => {
+    isListening = false;
+    updateListenButtons(false);
+  };
+  recognition.start();
+}
+function updateListenButtons(active){
+  const label = active ? "■ 듣기 중지" : "🎙 말하기";
+  if($("listenBtn")) $("listenBtn").textContent = label;
+  if($("startListenBtn")) $("startListenBtn").textContent = active ? "■ 듣기 중지" : "🎙 말하기 시작";
 }
 
 function renderReportTemplates(){

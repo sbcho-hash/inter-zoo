@@ -42,3 +42,33 @@ dialog{border:0;border-radius:24px;width:min(860px,calc(100vw - 18px));max-heigh
 
 .phrase-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.phrase-actions .copy-mini{align-self:auto}.phrase-card .copy-mini{cursor:pointer}
 @media (max-width:430px){.phrase-actions{gap:6px}.phrase-actions .copy-mini{padding:8px 10px;font-size:12px}}
+
+
+/* v8: interpreter tab */
+.interpreter-hero{background:linear-gradient(135deg,#eff6ff,#dbeafe 52%,#ffffff)}
+.lang-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#eff6ff;border:1px solid var(--line);border-radius:18px;padding:6px;margin-bottom:14px}
+.lang-btn{border:0;border-radius:14px;padding:12px 10px;font-weight:950;color:var(--primary-dark);background:transparent}
+.lang-btn.active{background:var(--primary);color:#fff;box-shadow:0 10px 24px rgba(37,99,235,.25)}
+.interpreter-label{display:flex;flex-direction:column;gap:8px;font-weight:900;color:#334155}
+.interpreter-label textarea{width:100%;resize:vertical;border:1px solid var(--line);border-radius:18px;padding:14px;font-size:18px;line-height:1.45;outline:none;background:#fff}
+.interpreter-label textarea:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.interpreter-output{margin-top:16px;border:1px solid var(--line);background:#f8fafc;border-radius:22px;padding:16px}
+.output-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.mini-buttons{gap:6px}
+.mini-buttons button{padding:9px 10px;font-size:12px}
+.translation-text{font-size:28px;line-height:1.35;font-weight:950;letter-spacing:-.03em;color:#0f172a;white-space:pre-wrap;word-break:keep-all;margin:14px 0}
+.shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.shortcut-card{text-align:left;border:1px solid var(--line);background:#fff;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 8px 22px rgba(15,23,42,.05)}
+.shortcut-card span{font-size:13px;font-weight:850;color:#475569;line-height:1.35}
+.shortcut-card strong{font-size:16px;line-height:1.35;color:#0f172a}
+.shortcut-card:active{transform:scale(.99)}
+.bottom-nav{grid-template-columns:repeat(5,1fr)}
+@media (max-width:430px){
+  .output-head{flex-direction:column}
+  .mini-buttons{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr}
+  .mini-buttons button{width:100%}
+  .translation-text{font-size:25px}
+  .shortcut-grid{grid-template-columns:1fr}
+  .bottom-nav{width:min(720px,calc(100vw - 8px));gap:4px;padding:6px}
+  .nav-btn{font-size:11px;padding:10px 2px}
+}
