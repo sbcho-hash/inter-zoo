@@ -78,3 +78,9 @@ API 키는 PWA 파일에 넣지 말고 `translation-worker/deepl-worker.js`를 C
 - 갤럭시: 앱 내 음성 인식 또는 키보드 마이크 사용
 - 아이폰: 입력칸에서 키보드 마이크 받아쓰기 사용 권장
 - 버튼 이벤트를 addEventListener 방식으로 재정리하여 미작동 가능성 감소
+
+
+## v12 수정사항
+- 통역 탭 버튼 미작동 원인 수정: `initInterpreter()` 초기화 호출 추가
+- Google 번역 연결을 새 창 팝업 방식이 아닌 현재 창 이동 방식으로 변경하여 PWA/모바일에서 안정성 개선
+- 번역 버튼 이벤트 위임 fallback 추가

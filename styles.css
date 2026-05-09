@@ -121,3 +121,10 @@ dialog{border:0;border-radius:24px;width:min(860px,calc(100vw - 18px));max-heigh
   .translator-textarea.large{font-size:18px}
   .shortcut-card .shortcut-actions{grid-template-columns:1fr 1fr 1fr}
 }
+
+
+/* v12: interpreter button activation fix */
+.accent-btn{cursor:pointer;opacity:1}
+.accent-btn:active{transform:translateY(1px)}
+.translate-actions button{cursor:pointer}
+.translate-actions button:disabled{opacity:.55;cursor:not-allowed}

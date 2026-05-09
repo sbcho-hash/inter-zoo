@@ -308,6 +308,7 @@ function today(){ return new Date().toISOString().slice(0,10); }
 function escapeHtml(s="") { return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])); }
 
 function init(){
+  setupInterpreterDelegatedFallback();
   renderGuide();
   renderReportTemplates();
   renderPhrases();
@@ -317,6 +318,7 @@ function init(){
   if($("phraseSearch")) $("phraseSearch").oninput = renderPhrases;
   if($("phraseCategory")) $("phraseCategory").onchange = renderPhrases;
   document.querySelectorAll(".phrase-jump").forEach(btn=>btn.addEventListener("click",()=>{ showPage("phrasePage"); if($("phraseCategory")){ $("phraseCategory").value = btn.dataset.phraseTarget; renderPhrases(); } }));
+  initInterpreter();
   $("startBoothBtn").onclick = () => { showPage("boothPage"); openDialog(); };
   $("goReportBtn").onclick = () => showPage("reportPage");
   $("newBoothBtn").onclick = () => openDialog();
@@ -511,6 +513,26 @@ if ("speechSynthesis" in window && window.speechSynthesis.onvoiceschanged !== un
 
 
 
+
+function setupInterpreterDelegatedFallback(){
+  document.addEventListener('click', event => {
+    const target = event.target.closest('button');
+    if(!target) return;
+    if(target.id === 'translateEnglishToKoreanBtn'){
+      event.preventDefault();
+      const text = getEnglishInputText();
+      if(!text){ showToast('번역할 영어 문장이 없습니다.'); $('englishManualText')?.focus(); return; }
+      openGoogleTranslate(text, 'en', 'ko');
+    }
+    if(target.id === 'translateKoreanToEnglishBtn'){
+      event.preventDefault();
+      const text = getKoreanInputText();
+      if(!text){ showToast('번역할 한국어 문장이 없습니다.'); $('manualText')?.focus(); return; }
+      openGoogleTranslate(text, 'ko', 'en');
+    }
+  });
+}
+
 function initInterpreter(){
   if(!$('manualText')) return;
   renderInterpreterShortcuts();
@@ -530,12 +552,14 @@ function initInterpreter(){
   bindIf('listenKoreanBtn', 'click', () => startGoogleTranslateListening('ko-KR', 'korean'));
   bindIf('stopListenBtn', 'click', stopGoogleTranslateListening);
 
-  bindIf('translateEnglishToKoreanBtn', 'click', () => {
+  bindIf('translateEnglishToKoreanBtn', 'click', (event) => {
+    event?.stopPropagation();
     const text = getEnglishInputText();
     if(!text){ showToast('번역할 영어 문장이 없습니다.'); $('englishManualText')?.focus(); return; }
     openGoogleTranslate(text, 'en', 'ko');
   });
-  bindIf('translateKoreanToEnglishBtn', 'click', () => {
+  bindIf('translateKoreanToEnglishBtn', 'click', (event) => {
+    event?.stopPropagation();
     const text = getKoreanInputText();
     if(!text){ showToast('번역할 한국어 문장이 없습니다.'); $('manualText')?.focus(); return; }
     openGoogleTranslate(text, 'ko', 'en');
@@ -640,12 +664,8 @@ function openGoogleTranslate(text, sl='auto', tl='ko'){
   const clean = String(text || '').trim();
   if(!clean){ showToast('번역할 문장이 없습니다.'); return; }
   const url = `https://translate.google.com/?sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(tl)}&text=${encodeURIComponent(clean)}&op=translate`;
-  const opened = window.open(url, '_blank', 'noopener,noreferrer');
-  if(!opened){
-    window.location.href = url;
-  } else {
-    showToast('Google 번역을 열었습니다.');
-  }
+  showToast('Google 번역으로 이동합니다.');
+  window.location.href = url;
 }
 function renderInterpreterShortcuts(){
   const root = $('interpreterShortcuts');
