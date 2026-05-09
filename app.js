@@ -240,6 +240,10 @@ const INTERPRETER_HELP_PHRASES = [
 let interpreterDirection = "ko-en";
 let recognition = null;
 let isListening = false;
+let googleRecog = null;
+let googleListening = false;
+let googleListeningTarget = 'english';
+let currentGoogleTranscript = '';
 
 const LOCAL_KO_EN_RULES = [
   [/MOQ|최소 발주|최소 주문/i, "What is the MOQ for this product?"],
@@ -506,192 +510,195 @@ if ("speechSynthesis" in window && window.speechSynthesis.onvoiceschanged !== un
 }
 
 
+
 function initInterpreter(){
-  if(!$('interpreterInput')) return;
-  syncTranslatorSettings();
+  if(!$('manualText')) return;
   renderInterpreterShortcuts();
   renderInterpreterHelpPhrases();
 
-  document.querySelectorAll('[data-translate-direction]').forEach(btn=>{
-    btn.addEventListener('click', ()=>setInterpreterDirection(btn.dataset.translateDirection));
-  });
-  $('quickSpeakKoBtn').onclick = () => { showPage('interpreterPage'); setInterpreterDirection('ko-en'); startInterpreterListening(); };
-  $('quickShowInterpreterHelpBtn').onclick = () => {
+  bindIf('quickKoreanInputBtn', 'click', () => {
     showPage('interpreterPage');
+    $('manualText')?.focus();
+    setInterpreterStatus('한국어를 입력하거나 키보드 마이크로 받아쓰기 후 영어 번역 열기를 누르세요.');
+  });
+  bindIf('quickHelpPhraseBtn', 'click', () => {
     const first = INTERPRETER_HELP_PHRASES[0];
     openPhraseDialog({ko:first.ko, en:first.en, note:first.note});
-  };
-  $('toggleTranslatorSettingsBtn').onclick = () => $('translatorSettings').classList.toggle('hidden');
-  $('saveTranslatorEndpointBtn').onclick = saveTranslatorEndpoint;
-  $('testTranslatorEndpointBtn').onclick = testTranslatorEndpoint;
-  $('clearTranslatorEndpointBtn').onclick = clearTranslatorEndpoint;
-  $('swapLangBtn').onclick = () => setInterpreterDirection(interpreterDirection === 'ko-en' ? 'en-ko' : 'ko-en');
-  $('listenBtn').onclick = startInterpreterListening;
-  $('translateBtn').onclick = translateInterpreterText;
-  $('clearInterpreterBtn').onclick = clearInterpreter;
-  $('speakTranslationBtn').onclick = speakInterpreterOutput;
-  $('copyTranslationBtn').onclick = () => copyPhrase(getInterpreterOutputText());
-  $('largeTranslationBtn').onclick = showInterpreterOutputLarge;
-  $('interpreterInput').addEventListener('keydown', e=>{
-    if((e.ctrlKey || e.metaKey) && e.key === 'Enter') translateInterpreterText();
   });
-  setInterpreterDirection(interpreterDirection);
+
+  bindIf('listenEnglishBtn', 'click', () => startGoogleTranslateListening('en-US', 'english'));
+  bindIf('listenKoreanBtn', 'click', () => startGoogleTranslateListening('ko-KR', 'korean'));
+  bindIf('stopListenBtn', 'click', stopGoogleTranslateListening);
+
+  bindIf('translateEnglishToKoreanBtn', 'click', () => {
+    const text = getEnglishInputText();
+    if(!text){ showToast('번역할 영어 문장이 없습니다.'); $('englishManualText')?.focus(); return; }
+    openGoogleTranslate(text, 'en', 'ko');
+  });
+  bindIf('translateKoreanToEnglishBtn', 'click', () => {
+    const text = getKoreanInputText();
+    if(!text){ showToast('번역할 한국어 문장이 없습니다.'); $('manualText')?.focus(); return; }
+    openGoogleTranslate(text, 'ko', 'en');
+  });
+  bindIf('copyEnglishTextBtn', 'click', () => {
+    const text = getEnglishInputText();
+    if(!text){ showToast('복사할 영어 문장이 없습니다.'); return; }
+    copyPhrase(text);
+  });
+  bindIf('copyKoreanTextBtn', 'click', () => {
+    const text = getKoreanInputText();
+    if(!text){ showToast('복사할 한국어 문장이 없습니다.'); return; }
+    copyPhrase(text);
+  });
+  bindIf('showKoreanInputLargeBtn', 'click', () => {
+    const text = getKoreanInputText();
+    if(!text){ showToast('크게 보여줄 문장이 없습니다.'); $('manualText')?.focus(); return; }
+    openPhraseDialog({ko:'상대방에게 보여줄 문장', en:text, note:'입력 문장 크게 보기'});
+  });
+  bindIf('englishManualText', 'input', () => {
+    currentGoogleTranscript = $('englishManualText').value.trim();
+    updateTranscriptBox(currentGoogleTranscript || '직접 입력 중입니다.');
+  });
+  bindIf('manualText', 'input', () => {
+    currentGoogleTranscript = $('manualText').value.trim();
+  });
 }
-function getTranslatorEndpoint(){ return (localStorage.getItem(TRANSLATOR_ENDPOINT_KEY) || '').trim(); }
-function setTranslatorEndpoint(url){ localStorage.setItem(TRANSLATOR_ENDPOINT_KEY, String(url || '').trim()); }
-function syncTranslatorSettings(){
-  const endpoint = getTranslatorEndpoint();
-  if($('translatorEndpointInput')) $('translatorEndpointInput').value = endpoint;
-  updateTranslatorModeLabel();
+function bindIf(id, eventName, handler){
+  const el = $(id);
+  if(el) el.addEventListener(eventName, handler);
 }
-function updateTranslatorModeLabel(){
-  const endpoint = getTranslatorEndpoint();
-  if(!$('translatorModeLabel')) return;
-  if(endpoint){
-    $('translatorModeLabel').textContent = '앱 내부 번역 모드';
-    $('translatorModeHint').textContent = '저장된 Worker로 번역합니다. 앱 밖으로 이동하지 않습니다.';
-  } else {
-    $('translatorModeLabel').textContent = '오프라인 문장 보조 모드';
-    $('translatorModeHint').textContent = 'Worker 주소를 저장하면 DeepL 기반 앱 내부 번역을 사용할 수 있습니다.';
-  }
+function getEnglishInputText(){
+  return (($('englishManualText')?.value || '').trim() || currentGoogleTranscript || '').trim();
 }
-function saveTranslatorEndpoint(){
-  const url = ($('translatorEndpointInput')?.value || '').trim();
-  if(url && !/^https:\/\//i.test(url)){
-    showToast('https://로 시작하는 Worker 주소를 입력해 주세요.');
+function getKoreanInputText(){
+  return (($('manualText')?.value || '').trim() || '').trim();
+}
+function setInterpreterStatus(text){
+  if($('listenStatus')) $('listenStatus').textContent = text && text.length > 18 ? '안내' : (text || '대기 중');
+  if($('transcript') && text) $('transcript').textContent = text;
+}
+function updateTranscriptBox(text){
+  if($('transcript')) $('transcript').textContent = text || '버튼을 누르면 상대방 말을 받아 적습니다.';
+}
+function supportsGoogleSpeech(){
+  return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+}
+function startGoogleTranslateListening(lang='en-US', target='english'){
+  if(!supportsGoogleSpeech()){
+    showToast('앱 내 음성 인식 미지원 · 키보드 마이크를 사용해 주세요.');
+    if(target === 'english') $('englishManualText')?.focus();
+    else $('manualText')?.focus();
+    updateTranscriptBox('이 브라우저에서는 앱 내 음성 인식이 제한됩니다. 입력칸을 누른 뒤 키보드 마이크 받아쓰기를 사용해 주세요.');
     return;
   }
-  setTranslatorEndpoint(url);
-  updateTranslatorModeLabel();
-  showToast(url ? '번역 Worker 주소를 저장했습니다.' : 'Worker 주소를 비웠습니다.');
-}
-function clearTranslatorEndpoint(){
-  setTranslatorEndpoint('');
-  if($('translatorEndpointInput')) $('translatorEndpointInput').value = '';
-  updateTranslatorModeLabel();
-  showToast('번역 Worker 주소를 삭제했습니다.');
-}
-async function testTranslatorEndpoint(){
-  saveTranslatorEndpoint();
-  const endpoint = getTranslatorEndpoint();
-  if(!endpoint){ showToast('먼저 Worker 주소를 입력해 주세요.'); return; }
-  const old = $('interpreterStatus').textContent;
-  $('interpreterStatus').textContent = '연결 테스트 중...';
+  stopGoogleTranslateListening(true);
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  googleRecog = new SR();
+  googleRecog.lang = lang;
+  googleRecog.interimResults = true;
+  googleRecog.continuous = false;
+  currentGoogleTranscript = '';
+  googleListeningTarget = target;
+  googleListening = true;
+  if($('listenStatus')) $('listenStatus').textContent = lang === 'en-US' ? '영어 듣는 중' : '한국어 듣는 중';
+  updateTranscriptBox('듣는 중입니다. 상대방에게 천천히 말해 달라고 해주세요.');
+
+  googleRecog.onresult = ev => {
+    let txt = '';
+    for(let i=ev.resultIndex; i<ev.results.length; i++) txt += ev.results[i][0].transcript;
+    currentGoogleTranscript = txt.trim();
+    if(target === 'english' && $('englishManualText')) $('englishManualText').value = currentGoogleTranscript;
+    if(target === 'korean' && $('manualText')) $('manualText').value = currentGoogleTranscript;
+    updateTranscriptBox(currentGoogleTranscript || '듣는 중입니다.');
+  };
+  googleRecog.onerror = ev => {
+    const msg = '음성 인식 오류: ' + (ev.error || 'unknown') + '. 직접 입력 또는 키보드 마이크를 사용해 주세요.';
+    updateTranscriptBox(msg);
+    if($('listenStatus')) $('listenStatus').textContent = '오류';
+    showToast('음성 인식이 중단되었습니다.');
+  };
+  googleRecog.onend = () => {
+    googleListening = false;
+    if($('listenStatus')) $('listenStatus').textContent = currentGoogleTranscript ? '인식 완료' : '대기 중';
+  };
   try{
-    const text = await requestWorkerTranslation('안녕하세요. 샘플을 받을 수 있을까요?', 'KO', 'EN-US');
-    $('interpreterOutput').textContent = text;
-    $('interpreterStatus').textContent = '연결 테스트 성공. 이제 앱 내부 번역을 사용할 수 있습니다.';
+    googleRecog.start();
   }catch(e){
-    $('interpreterStatus').textContent = '연결 테스트 실패: ' + e.message;
-    showToast('Worker 연결에 실패했습니다.');
-    setTimeout(()=>{ if($('interpreterStatus')) $('interpreterStatus').textContent = old; }, 4500);
+    googleListening = false;
+    updateTranscriptBox('음성 인식을 시작하지 못했습니다. 입력칸에서 키보드 마이크를 사용해 주세요.');
+    showToast('음성 인식을 시작하지 못했습니다.');
   }
 }
-function setInterpreterDirection(direction){
-  interpreterDirection = direction || 'ko-en';
-  document.querySelectorAll('[data-translate-direction]').forEach(btn=>btn.classList.toggle('active', btn.dataset.translateDirection === interpreterDirection));
-  if($('sourceLabel')) $('sourceLabel').textContent = interpreterDirection === 'ko-en' ? '한국어로 말하거나 입력하세요' : 'Speak or type in English';
-  if($('targetLabel')) $('targetLabel').textContent = interpreterDirection === 'ko-en' ? '영어 번역' : '한국어 번역';
-  if($('interpreterInput')){
-    $('interpreterInput').placeholder = interpreterDirection === 'ko-en'
-      ? '예: 이 제품의 MOQ와 리드타임을 알려주실 수 있을까요?'
-      : 'Example: Could you tell me the MOQ and lead time for this product?';
+function stopGoogleTranslateListening(silent=false){
+  if(googleRecog && googleListening){
+    try{ googleRecog.stop(); }catch(e){}
   }
-  $('interpreterStatus').textContent = interpreterDirection === 'ko-en'
-    ? '한국어 문장을 입력하면 영어로 번역합니다.'
-    : '영어 문장을 입력하면 한국어로 번역합니다.';
+  googleListening = false;
+  if(!silent && $('listenStatus')) $('listenStatus').textContent = currentGoogleTranscript ? '인식 완료' : '대기 중';
+}
+function openGoogleTranslate(text, sl='auto', tl='ko'){
+  const clean = String(text || '').trim();
+  if(!clean){ showToast('번역할 문장이 없습니다.'); return; }
+  const url = `https://translate.google.com/?sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(tl)}&text=${encodeURIComponent(clean)}&op=translate`;
+  const opened = window.open(url, '_blank', 'noopener,noreferrer');
+  if(!opened){
+    window.location.href = url;
+  } else {
+    showToast('Google 번역을 열었습니다.');
+  }
 }
 function renderInterpreterShortcuts(){
   const root = $('interpreterShortcuts');
   if(!root) return;
-  root.innerHTML = INTERPRETER_SHORTCUTS.map(item=>`
-    <button type="button" class="shortcut-card" data-ko="${escapeHtml(item.ko)}" data-en="${escapeHtml(item.en)}" data-tag="${escapeHtml(item.tag||'')}">
+  root.innerHTML = INTERPRETER_SHORTCUTS.map((item, idx)=>`
+    <article class="shortcut-card" data-index="${idx}">
       <small>${escapeHtml(item.tag || '문장')}</small>
       <span>${escapeHtml(item.ko)}</span>
       <strong>${escapeHtml(item.en)}</strong>
-    </button>`).join('');
-  root.querySelectorAll('.shortcut-card').forEach(btn=>btn.addEventListener('click', ()=>{
-    if(interpreterDirection === 'ko-en'){
-      $('interpreterInput').value = btn.dataset.ko;
-      $('interpreterOutput').textContent = btn.dataset.en;
-    } else {
-      $('interpreterInput').value = btn.dataset.en;
-      $('interpreterOutput').textContent = btn.dataset.ko;
-    }
-    $('interpreterStatus').textContent = '빠른 문장을 불러왔습니다. 필요하면 크게 보기 또는 듣기를 사용하세요.';
+      <div class="shortcut-actions">
+        <button type="button" class="primary" data-shortcut-big="${idx}">크게</button>
+        <button type="button" class="secondary" data-shortcut-speak="${idx}">듣기</button>
+        <button type="button" class="secondary" data-shortcut-translate="${idx}">번역</button>
+      </div>
+    </article>`).join('');
+  root.querySelectorAll('[data-shortcut-big]').forEach(btn=>btn.addEventListener('click', e=>{
+    const p = INTERPRETER_SHORTCUTS[Number(e.currentTarget.dataset.shortcutBig)];
+    openPhraseDialog({ko:p.ko, en:p.en, note:p.tag || '부스 상담 문장'});
+  }));
+  root.querySelectorAll('[data-shortcut-speak]').forEach(btn=>btn.addEventListener('click', e=>{
+    const p = INTERPRETER_SHORTCUTS[Number(e.currentTarget.dataset.shortcutSpeak)];
+    speakAny(p.en, 'en-US', .86);
+  }));
+  root.querySelectorAll('[data-shortcut-translate]').forEach(btn=>btn.addEventListener('click', e=>{
+    const p = INTERPRETER_SHORTCUTS[Number(e.currentTarget.dataset.shortcutTranslate)];
+    openGoogleTranslate(p.en, 'en', 'ko');
   }));
 }
 function renderInterpreterHelpPhrases(){
   const root = $('interpreterHelpPhrases');
   if(!root) return;
-  root.innerHTML = INTERPRETER_HELP_PHRASES.map(p=>`<article class="phrase-card card" tabindex="0" role="group">
+  root.innerHTML = INTERPRETER_HELP_PHRASES.map((p, idx)=>`<article class="phrase-card card" tabindex="0" role="group">
     <div class="phrase-note">${escapeHtml(p.note)}</div>
     <p class="phrase-ko">${escapeHtml(p.ko)}</p>
     <p class="phrase-en">${escapeHtml(p.en)}</p>
     <div class="phrase-actions">
-      <button type="button" class="primary copy-mini" data-big-help="${escapeHtml(JSON.stringify(p))}">크게</button>
-      <button type="button" class="secondary copy-mini" data-speak-help="${escapeHtml(p.en)}">듣기</button>
-      <button type="button" class="secondary copy-mini" data-copy-help="${escapeHtml(p.en)}">복사</button>
+      <button type="button" class="primary copy-mini" data-help-big="${idx}">크게</button>
+      <button type="button" class="secondary copy-mini" data-help-speak="${idx}">듣기</button>
+      <button type="button" class="secondary copy-mini" data-help-copy="${idx}">복사</button>
     </div>
   </article>`).join('');
-  root.querySelectorAll('[data-big-help]').forEach(btn=>btn.onclick=()=>{
-    const p = JSON.parse(btn.dataset.bigHelp);
+  root.querySelectorAll('[data-help-big]').forEach(btn=>btn.addEventListener('click', e=>{
+    const p = INTERPRETER_HELP_PHRASES[Number(e.currentTarget.dataset.helpBig)];
     openPhraseDialog({ko:p.ko, en:p.en, note:p.note});
-  });
-  root.querySelectorAll('[data-speak-help]').forEach(btn=>btn.onclick=()=>speakText(btn.dataset.speakHelp, .86));
-  root.querySelectorAll('[data-copy-help]').forEach(btn=>btn.onclick=()=>copyPhrase(btn.dataset.copyHelp));
-}
-async function translateInterpreterText(){
-  const input = ($('interpreterInput')?.value || '').trim();
-  if(!input){ showToast('번역할 문장을 입력해 주세요.'); $('interpreterInput')?.focus(); return; }
-  const source = interpreterDirection === 'ko-en' ? 'KO' : 'EN';
-  const target = interpreterDirection === 'ko-en' ? 'EN-US' : 'KO';
-  $('translateBtn').disabled = true;
-  $('translateBtn').textContent = '번역 중...';
-  $('interpreterStatus').textContent = getTranslatorEndpoint() ? 'Worker로 번역 중입니다.' : 'Worker 주소가 없어 문장 보조 모드로 변환합니다.';
-  try{
-    const output = getTranslatorEndpoint()
-      ? await requestWorkerTranslation(input, source, target)
-      : localTranslate(input, source, target);
-    $('interpreterOutput').textContent = output;
-    $('interpreterStatus').textContent = getTranslatorEndpoint() ? '앱 내부 번역 완료.' : '문장 보조 결과입니다. 정확한 번역은 Worker 연결 후 사용하세요.';
-  }catch(e){
-    const output = localTranslate(input, source, target);
-    $('interpreterOutput').textContent = output;
-    $('interpreterStatus').textContent = 'Worker 번역 실패로 문장 보조 결과를 표시했습니다: ' + e.message;
-  }finally{
-    $('translateBtn').disabled = false;
-    $('translateBtn').textContent = '앱 안에서 번역';
-  }
-}
-async function requestWorkerTranslation(text, sourceLang, targetLang){
-  const endpoint = getTranslatorEndpoint();
-  if(!endpoint) throw new Error('Worker 주소가 없습니다.');
-  const res = await fetch(endpoint, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ text, source_lang: sourceLang, target_lang: targetLang })
-  });
-  const data = await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-  const translated = data.text || data.translation || data.translatedText || (data.translations && data.translations[0] && data.translations[0].text);
-  if(!translated) throw new Error('번역 결과가 비어 있습니다.');
-  return translated;
-}
-function localTranslate(text, source, target){
-  const normalized = String(text || '').replace(/\s+/g,' ').trim();
-  const rules = source === 'KO' ? LOCAL_KO_EN_RULES : LOCAL_EN_KO_RULES;
-  for(const [pattern, result] of rules){ if(pattern.test(normalized)) return result; }
-  const exact = INTERPRETER_SHORTCUTS.find(x => source === 'KO' ? (x.ko.includes(normalized) || normalized.includes(x.ko.replace(/[?？]/g,'').slice(0,10))) : (x.en.toLowerCase().includes(normalized.toLowerCase()) || normalized.toLowerCase().includes(x.en.toLowerCase().replace(/[?]/g,'').slice(0,14))));
-  if(exact) return source === 'KO' ? exact.en : exact.ko;
-  return source === 'KO' ? `Could you help us with this: ${normalized}` : `상대방이 말한 내용: ${normalized}`;
-}
-function getInterpreterOutputText(){ return ($('interpreterOutput')?.textContent || '').trim().replace('번역 결과가 여기에 표시됩니다.','').trim(); }
-function speakInterpreterOutput(){
-  const text = getInterpreterOutputText();
-  if(!text){ showToast('읽을 번역 결과가 없습니다.'); return; }
-  const lang = interpreterDirection === 'ko-en' ? 'en-US' : 'ko-KR';
-  speakAny(text, lang, interpreterDirection === 'ko-en' ? .9 : 1);
+  }));
+  root.querySelectorAll('[data-help-speak]').forEach(btn=>btn.addEventListener('click', e=>{
+    const p = INTERPRETER_HELP_PHRASES[Number(e.currentTarget.dataset.helpSpeak)];
+    speakAny(p.en, 'en-US', .86);
+  }));
+  root.querySelectorAll('[data-help-copy]').forEach(btn=>btn.addEventListener('click', e=>{
+    const p = INTERPRETER_HELP_PHRASES[Number(e.currentTarget.dataset.helpCopy)];
+    copyPhrase(p.en);
+  }));
 }
 function speakAny(text, lang='en-US', rate=1){
   if(!('speechSynthesis' in window)){ showToast('이 브라우저는 듣기를 지원하지 않습니다.'); return; }
@@ -704,55 +711,6 @@ function speakAny(text, lang='en-US', rate=1){
   const preferred = voices.find(v => (v.lang || '').toLowerCase().startsWith(lang.split('-')[0].toLowerCase())) || voices[0];
   if(preferred) utter.voice = preferred;
   window.speechSynthesis.speak(utter);
-  showToast(lang.startsWith('ko') ? '한국어로 읽어드립니다.' : '영어로 읽어드립니다.');
-}
-function showInterpreterOutputLarge(){
-  const output = getInterpreterOutputText();
-  if(!output){ showToast('크게 볼 번역 결과가 없습니다.'); return; }
-  openPhraseDialog({
-    ko: interpreterDirection === 'en-ko' ? output : ($('interpreterInput').value || ''),
-    en: interpreterDirection === 'ko-en' ? output : ($('interpreterInput').value || ''),
-    note: interpreterDirection === 'ko-en' ? '한국어 → 영어' : 'English → Korean'
-  });
-}
-function clearInterpreter(){
-  if($('interpreterInput')) $('interpreterInput').value = '';
-  if($('interpreterOutput')) $('interpreterOutput').textContent = '번역 결과가 여기에 표시됩니다.';
-  setInterpreterDirection(interpreterDirection);
-}
-function getSpeechRecognition(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
-function startInterpreterListening(){
-  const Recognition = getSpeechRecognition();
-  if(!Recognition){
-    showToast('앱 내 음성 인식 미지원 · 입력칸에서 키보드 마이크를 사용해 주세요.');
-    $('interpreterInput')?.focus();
-    $('interpreterStatus').textContent = '아이폰은 입력칸을 누른 뒤 키보드 마이크 받아쓰기를 사용하는 방식이 가장 안정적입니다.';
-    return;
-  }
-  if(isListening && recognition){ try{ recognition.stop(); }catch(e){} return; }
-  recognition = new Recognition();
-  recognition.lang = interpreterDirection === 'ko-en' ? 'ko-KR' : 'en-US';
-  recognition.interimResults = true;
-  recognition.continuous = false;
-  isListening = true;
-  $('listenBtn').textContent = '■ 중지';
-  $('interpreterStatus').textContent = '듣는 중입니다. 천천히 말해 주세요.';
-  recognition.onresult = ev=>{
-    let txt = '';
-    for(let i=ev.resultIndex; i<ev.results.length; i++) txt += ev.results[i][0].transcript;
-    $('interpreterInput').value = txt.trim();
-  };
-  recognition.onerror = ev=>{
-    $('interpreterStatus').textContent = '음성 인식 오류: ' + (ev.error || 'unknown') + '. 직접 입력 또는 키보드 마이크를 사용해 주세요.';
-    showToast('음성 인식이 중단되었습니다.');
-  };
-  recognition.onend = ()=>{
-    isListening = false;
-    $('listenBtn').textContent = '🎙 말하기';
-    if(($('interpreterInput').value || '').trim()) translateInterpreterText();
-    else $('interpreterStatus').textContent = '대기 중입니다.';
-  };
-  try{ recognition.start(); }catch(e){ showToast('음성 인식을 시작하지 못했습니다.'); }
 }
 
 function renderReportTemplates(){

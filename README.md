@@ -70,3 +70,11 @@ Interzoo 현장용 PWA입니다.
 
 ### 중요
 API 키는 PWA 파일에 넣지 말고 `translation-worker/deepl-worker.js`를 Cloudflare Worker로 배포한 뒤 Secret으로 저장하세요.
+
+
+## v11 변경사항
+- 통역 탭을 Google 번역 연결형으로 단순화
+- Cloudflare Worker / DeepL API 설정 없이 사용 가능
+- 갤럭시: 앱 내 음성 인식 또는 키보드 마이크 사용
+- 아이폰: 입력칸에서 키보드 마이크 받아쓰기 사용 권장
+- 버튼 이벤트를 addEventListener 방식으로 재정리하여 미작동 가능성 감소

@@ -169,89 +169,71 @@
     </section>
 
 
+    
     <section id="interpreterPage" class="page" aria-labelledby="interpreterTitle">
-      <section class="hero card interpreter-hero">
+      <section class="hero card interpreter-hero google-translate-hero">
         <div>
           <p class="eyebrow">다섯 번째 페이지 · 통역</p>
-          <h2 id="interpreterTitle">앱 안에서 바로 번역하는 부스 통역</h2>
-          <p>한국어/영어를 입력하거나 말하면 앱 안에서 번역 결과를 보여주고, 크게 보기·듣기·복사까지 바로 사용할 수 있습니다.</p>
+          <h2 id="interpreterTitle">Google 번역 연결형 현장 통역</h2>
+          <p>앱 안에서 문장을 받아 적거나 입력한 뒤, Google 번역으로 바로 연결합니다. 아이폰/갤럭시는 직접 입력과 키보드 마이크까지 함께 사용할 수 있습니다.</p>
         </div>
         <div class="hero-actions-vertical">
-          <button id="quickSpeakKoBtn" class="primary big">🎙 한국어 말하기</button>
-          <button id="quickShowInterpreterHelpBtn" class="secondary">상대방 안내문 보기</button>
+          <button id="quickKoreanInputBtn" class="primary big">한국어 입력하기</button>
+          <button id="quickHelpPhraseBtn" class="secondary">상대방 안내문 보기</button>
         </div>
       </section>
 
-      <section class="interpreter-status-card card">
-        <div class="status-row">
+      <section class="translate-guide card">
+        <p class="eyebrow">사용 순서</p>
+        <h3>가장 안정적인 사용법</h3>
+        <ol class="number-list">
+          <li><strong>갤럭시</strong>: 앱의 말하기 버튼 또는 키보드 마이크를 사용합니다.</li>
+          <li><strong>아이폰</strong>: 입력칸을 누른 뒤 키보드 마이크 받아쓰기를 사용하는 방식이 가장 안정적입니다.</li>
+          <li>문장이 입력되면 <strong>번역 열기</strong>를 눌러 Google 번역으로 연결합니다.</li>
+        </ol>
+      </section>
+
+      <section class="translatebox card">
+        <div class="translatebox-head">
           <div>
-            <p class="eyebrow">Translation Server</p>
-            <h3 id="translatorModeLabel">오프라인 문장 보조 모드</h3>
-            <p id="translatorModeHint" class="hint">DeepL Worker 주소를 저장하면 앱 밖으로 나가지 않고 실제 번역을 사용할 수 있습니다.</p>
+            <p class="eyebrow">Listen</p>
+            <h2>1) 상대방 영어 듣고 한국어로 보기</h2>
           </div>
-          <button type="button" id="toggleTranslatorSettingsBtn" class="secondary">설정</button>
+          <span id="listenStatus" class="status-pill">대기 중</span>
         </div>
-        <div id="translatorSettings" class="translator-settings hidden">
-          <label class="interpreter-label compact-label">
-            <span>번역 Worker 주소</span>
-            <input id="translatorEndpointInput" placeholder="https://your-worker.your-subdomain.workers.dev/translate">
-          </label>
-          <div class="button-row wrap">
-            <button type="button" id="saveTranslatorEndpointBtn" class="primary">주소 저장</button>
-            <button type="button" id="testTranslatorEndpointBtn" class="secondary">연결 테스트</button>
-            <button type="button" id="clearTranslatorEndpointBtn" class="secondary">주소 삭제</button>
-          </div>
-          <p class="hint">API 키는 이 앱에 넣지 않습니다. Cloudflare Worker의 Secret으로 저장해야 안전합니다.</p>
+        <div id="transcript" class="transcript-box">버튼을 누르면 상대방 영어를 받아 적습니다. 음성 인식이 안 되면 아래 입력칸에 직접 입력해도 됩니다.</div>
+        <textarea id="englishManualText" class="translator-textarea" rows="3" placeholder="상대방 영어를 직접 입력하거나, 음성 인식 결과를 수정하세요."></textarea>
+        <div class="button-row wrap translate-actions">
+          <button id="listenEnglishBtn" type="button" class="primary">🎙 영어 듣기</button>
+          <button id="stopListenBtn" type="button" class="secondary">멈춤</button>
+          <button id="translateEnglishToKoreanBtn" type="button" class="accent-btn">한국어 번역 열기</button>
+          <button id="copyEnglishTextBtn" type="button" class="secondary">영어 복사</button>
         </div>
       </section>
 
-      <section class="interpreter-card card">
-        <div class="section-title compact">
+      <section class="translatebox card">
+        <div class="translatebox-head">
           <div>
-            <p class="eyebrow">Interpreter</p>
-            <h2>통역 모드</h2>
+            <p class="eyebrow">Speak</p>
+            <h2>2) 내가 한국어로 말하고 영어로 보여주기</h2>
           </div>
+          <span class="status-pill blue">KO → EN</span>
         </div>
-
-        <div class="lang-toggle" role="group" aria-label="통역 방향 선택">
-          <button type="button" class="lang-btn active" data-translate-direction="ko-en">한국어 → 영어</button>
-          <button type="button" class="lang-btn" data-translate-direction="en-ko">English → Korean</button>
+        <textarea id="manualText" class="translator-textarea large" rows="5" placeholder="예: 이 제품의 MOQ와 리드타임을 알려주실 수 있을까요?"></textarea>
+        <div class="button-row wrap translate-actions">
+          <button id="listenKoreanBtn" type="button" class="primary">🎙 한국어 말하기</button>
+          <button id="translateKoreanToEnglishBtn" type="button" class="accent-btn">영어 번역 열기</button>
+          <button id="showKoreanInputLargeBtn" type="button" class="secondary">크게 보여주기</button>
+          <button id="copyKoreanTextBtn" type="button" class="secondary">입력 복사</button>
         </div>
-
-        <label class="interpreter-label">
-          <span id="sourceLabel">한국어로 말하거나 입력하세요</span>
-          <textarea id="interpreterInput" rows="5" placeholder="예: 이 제품의 MOQ와 리드타임을 알려주실 수 있을까요?"></textarea>
-        </label>
-
-        <div class="button-row wrap interpreter-main-actions">
-          <button id="listenBtn" type="button" class="primary">🎙 말하기</button>
-          <button id="translateBtn" type="button" class="secondary">앱 안에서 번역</button>
-          <button id="swapLangBtn" type="button" class="secondary">방향 전환</button>
-          <button id="clearInterpreterBtn" type="button" class="secondary">지우기</button>
-        </div>
-
-        <div class="interpreter-output">
-          <div class="output-head">
-            <div>
-              <p class="eyebrow">Translation</p>
-              <h3 id="targetLabel">영어 번역</h3>
-            </div>
-            <div class="button-row mini-buttons">
-              <button id="speakTranslationBtn" type="button" class="secondary">▶ 듣기</button>
-              <button id="copyTranslationBtn" type="button" class="secondary">복사</button>
-              <button id="largeTranslationBtn" type="button" class="primary">크게 보기</button>
-            </div>
-          </div>
-          <p id="interpreterOutput" class="translation-text">번역 결과가 여기에 표시됩니다.</p>
-          <p id="interpreterStatus" class="hint">갤럭시는 앱 내 말하기를 먼저 시도하고, 아이폰은 입력칸을 누른 뒤 키보드 마이크 받아쓰기를 함께 사용하면 안정적입니다.</p>
-        </div>
+        <p class="hint">아이폰에서는 입력칸을 누른 뒤 키보드의 마이크 받아쓰기를 사용하면 안정적입니다.</p>
       </section>
 
       <section class="interpreter-shortcuts card">
         <div class="section-title compact">
           <div>
             <p class="eyebrow">Quick Sentences</p>
-            <h2>자주 쓰는 통역 문장</h2>
+            <h2>자주 쓰는 부스 상담 문장</h2>
           </div>
         </div>
         <div id="interpreterShortcuts" class="shortcut-grid"></div>
@@ -268,9 +250,9 @@
       </section>
 
       <section class="phrase-tip card">
-        <p class="eyebrow">사용 참고</p>
-        <h3>앱 내부 번역을 쓰려면 Worker 주소 설정이 필요합니다.</h3>
-        <p class="hint">Worker 주소를 저장하기 전에는 빠른 문장과 간단 문장 보조로 작동합니다. Worker를 연결하면 Google 번역을 새 창으로 열지 않고 앱 안에서 결과를 표시합니다.</p>
+        <p class="eyebrow">참고</p>
+        <h3>이 방식은 별도 API 설정 없이 작동합니다.</h3>
+        <p class="hint">Google 번역 화면으로 이동하기 때문에 인터넷 연결이 필요합니다. 앱 안에서 완전 자동 번역을 하려면 별도 API가 필요하지만, 현장 안정성은 이 방식이 더 좋습니다.</p>
       </section>
     </section>
 
