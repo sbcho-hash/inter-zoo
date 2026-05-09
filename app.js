@@ -541,7 +541,7 @@ function initInterpreter(){
   bindIf('quickKoreanInputBtn', 'click', () => {
     showPage('interpreterPage');
     $('manualText')?.focus();
-    setInterpreterStatus('한국어를 입력하거나 키보드 마이크로 받아쓰기 후 영어 번역 열기를 누르세요.');
+    setInterpreterStatus('한국어를 입력하거나 키보드 마이크로 받아쓰기 후 영어 번역를 누르세요.');
   });
   bindIf('quickHelpPhraseBtn', 'click', () => {
     const first = INTERPRETER_HELP_PHRASES[0];
@@ -664,7 +664,7 @@ function openGoogleTranslate(text, sl='auto', tl='ko'){
   const clean = String(text || '').trim();
   if(!clean){ showToast('번역할 문장이 없습니다.'); return; }
   const url = `https://translate.google.com/?sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(tl)}&text=${encodeURIComponent(clean)}&op=translate`;
-  showToast('Google 번역으로 이동합니다.');
+  showToast('번역 화면으로 이동합니다.');
   window.location.href = url;
 }
 function renderInterpreterShortcuts(){

@@ -128,3 +128,19 @@ dialog{border:0;border-radius:24px;width:min(860px,calc(100vw - 18px));max-heigh
 .accent-btn:active{transform:translateY(1px)}
 .translate-actions button{cursor:pointer}
 .translate-actions button:disabled{opacity:.55;cursor:not-allowed}
+
+
+/* v13: translation button naming + softer blue color */
+.accent-btn{
+  background:linear-gradient(135deg,#2563eb,#06b6d4) !important;
+  color:#fff !important;
+  box-shadow:0 10px 24px rgba(37,99,235,.24) !important;
+}
+.accent-btn:active{transform:translateY(1px)}
+.google-translate-hero{
+  background:linear-gradient(135deg,#eff6ff,#dbeafe 55%,#ecfeff) !important;
+}
+.status-pill.blue{
+  background:#dbeafe !important;
+  color:#1d4ed8 !important;
+}
