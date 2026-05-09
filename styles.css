@@ -72,3 +72,26 @@ dialog{border:0;border-radius:24px;width:min(860px,calc(100vw - 18px));max-heigh
   .bottom-nav{width:min(720px,calc(100vw - 8px));gap:4px;padding:6px}
   .nav-btn{font-size:11px;padding:10px 2px}
 }
+
+
+/* v9: robust interpreter tab based on external translator handoff */
+.interpreter-warning{margin:16px 0;background:#fff7ed;border:1px solid #fed7aa;border-radius:18px;padding:13px;color:#7c2d12;font-size:13px;line-height:1.55}
+.dark-card{background:#0f172a;color:#fff;border:0}
+.dark-card h3{color:#fff;margin:0 0 8px;font-size:20px}
+.dark-card .mini{color:#bfdbfe;margin:0 0 8px;font-size:13px;font-weight:800}
+.transcript{background:#fff;color:#111827;border-radius:16px;padding:12px;min-height:86px;line-height:1.5;white-space:pre-wrap}
+.translator-textarea{width:100%;min-height:106px;border:0;border-radius:16px;padding:12px;background:#fff;color:#111827;resize:vertical;margin-top:10px;font-size:16px;line-height:1.45}
+.interpreter-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}
+.interpreter-actions .btn{border:0;border-radius:13px;padding:11px 8px;font-weight:850;font-size:12px;text-align:center}
+.btn.green{background:#22c55e;color:#052e16}.btn.warn{background:#f59e0b;color:#111827}.btn.secondary{background:#e5e7eb;color:#111827}
+.compact-phrase-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:560px){.interpreter-actions{grid-template-columns:1fr 1fr}.compact-phrase-list{grid-template-columns:1fr}.dark-card h3{font-size:18px}}
+
+
+/* v10: in-app translation interpreter */
+.interpreter-hero{background:linear-gradient(135deg,#eff6ff,#dbeafe 52%,#ffffff)}
+.interpreter-status-card{margin:16px 0}.status-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.translator-settings{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}.compact-label input{width:100%;border:1px solid var(--line);border-radius:16px;padding:13px;font-size:14px;background:#fff;outline:none}.compact-label input:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.lang-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#eff6ff;border:1px solid var(--line);border-radius:18px;padding:6px;margin-bottom:14px}.lang-btn{border:0;border-radius:14px;padding:12px 10px;font-weight:950;color:var(--primary-dark);background:transparent}.lang-btn.active{background:var(--primary);color:#fff;box-shadow:0 10px 24px rgba(37,99,235,.25)}
+.interpreter-label{display:flex;flex-direction:column;gap:8px;font-weight:900;color:#334155}.interpreter-label textarea{width:100%;resize:vertical;border:1px solid var(--line);border-radius:18px;padding:14px;font-size:18px;line-height:1.45;outline:none;background:#fff}.interpreter-label textarea:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.interpreter-main-actions{margin-top:12px}.interpreter-output{margin-top:16px;border:1px solid var(--line);background:#f8fafc;border-radius:22px;padding:16px}.output-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.mini-buttons{gap:6px}.mini-buttons button{padding:9px 10px;font-size:12px}.translation-text{font-size:28px;line-height:1.35;font-weight:950;letter-spacing:-.03em;color:#0f172a;white-space:pre-wrap;word-break:keep-all;margin:14px 0}.shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shortcut-card{text-align:left;border:1px solid var(--line);background:#fff;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:7px;box-shadow:0 8px 22px rgba(15,23,42,.05)}.shortcut-card small{align-self:flex-start;border-radius:999px;background:#eff6ff;color:#1d4ed8;padding:4px 8px;font-size:11px;font-weight:950}.shortcut-card span{font-size:13px;font-weight:850;color:#475569;line-height:1.35}.shortcut-card strong{font-size:16px;line-height:1.35;color:#0f172a}.shortcut-card:active{transform:scale(.99)}.compact-phrase-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.bottom-nav{grid-template-columns:repeat(5,1fr)}
+@media (max-width:560px){.status-row,.output-head{flex-direction:column}.mini-buttons{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr}.mini-buttons button{width:100%}.translation-text{font-size:25px}.shortcut-grid,.compact-phrase-list{grid-template-columns:1fr}.bottom-nav{width:min(720px,calc(100vw - 8px));gap:4px;padding:6px}.nav-btn{font-size:11px;padding:10px 2px}}

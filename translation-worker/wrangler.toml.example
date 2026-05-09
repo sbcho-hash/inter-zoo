@@ -1,0 +1,11 @@
+name = "expo-translation-worker"
+main = "deepl-worker.js"
+compatibility_date = "2026-05-09"
+
+# Non-sensitive settings only. Do NOT put DEEPL_API_KEY here.
+[vars]
+# Use https://api-free.deepl.com for DeepL API Free.
+# Use https://api.deepl.com for DeepL API Pro.
+DEEPL_API_HOST = "https://api-free.deepl.com"
+# Optional: set to your GitHub Pages origin, e.g. "https://username.github.io"
+ALLOWED_ORIGIN = "*"

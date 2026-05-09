@@ -210,94 +210,70 @@ const PHRASE_CATEGORIES = [
 ];
 
 
+const TRANSLATOR_ENDPOINT_KEY = "expo_translator_endpoint_v10";
+
 const INTERPRETER_SHORTCUTS = [
-  {ko:"이 제품의 MOQ는 어떻게 되나요?", en:"What is the MOQ for this product?"},
-  {ko:"샘플을 받을 수 있을까요?", en:"Would it be possible to receive samples?"},
-  {ko:"OEM 또는 ODM 생산이 가능한가요?", en:"Do you offer OEM or ODM manufacturing?"},
-  {ko:"패키지 디자인을 커스터마이징할 수 있나요?", en:"Can the package design be customized?"},
-  {ko:"기능성 원료나 함량을 조정할 수 있나요?", en:"Can the functional ingredients or their amounts be adjusted?"},
-  {ko:"제품 사양서와 원료 자료를 이메일로 보내주실 수 있을까요?", en:"Could you send the product specification and ingredient documents by email?"},
-  {ko:"대략적인 단가와 리드타임을 알려주실 수 있을까요?", en:"Could you share the approximate price range and lead time?"},
-  {ko:"한국에 이미 유통 파트너가 있나요?", en:"Do you already have a distribution partner in Korea?"},
-  {ko:"제가 정확히 이해했는지 확인해도 될까요?", en:"May I check if I understood correctly?"},
-  {ko:"조금 천천히 말씀해 주실 수 있을까요?", en:"Could you speak a little more slowly?"}
+  {ko:"이 제품의 MOQ는 어떻게 되나요?", en:"What is the MOQ for this product?", tag:"MOQ"},
+  {ko:"샘플을 받을 수 있을까요?", en:"Would it be possible to receive samples?", tag:"샘플"},
+  {ko:"샘플 비용과 배송 방식은 어떻게 되나요?", en:"What is the sample fee and how do you arrange sample shipping?", tag:"샘플 비용"},
+  {ko:"OEM 또는 ODM 생산이 가능한가요?", en:"Do you offer OEM or ODM manufacturing?", tag:"OEM/ODM"},
+  {ko:"PB 제품으로도 생산 가능한가요?", en:"Is private label production available?", tag:"PB"},
+  {ko:"패키지 디자인을 커스터마이징할 수 있나요?", en:"Can the package design be customized?", tag:"패키지"},
+  {ko:"기능성 원료나 함량을 조정할 수 있나요?", en:"Can the functional ingredients or their amounts be adjusted?", tag:"원료/함량"},
+  {ko:"제품 사양서와 원료 자료를 이메일로 보내주실 수 있을까요?", en:"Could you send the product specification and ingredient documents by email?", tag:"자료 요청"},
+  {ko:"대략적인 단가와 리드타임을 알려주실 수 있을까요?", en:"Could you share the approximate price range and lead time?", tag:"단가/리드타임"},
+  {ko:"현재 어느 국가에 수출하고 있나요?", en:"Which countries do you currently export to?", tag:"수출"},
+  {ko:"한국에 이미 유통 파트너가 있나요?", en:"Do you already have a distribution partner in Korea?", tag:"한국 유통"},
+  {ko:"제가 정확히 이해했는지 확인해도 될까요?", en:"May I check if I understood correctly?", tag:"확인"},
+  {ko:"조금 천천히 말씀해 주실 수 있을까요?", en:"Could you speak a little more slowly?", tag:"천천히"},
+  {ko:"핵심 내용만 다시 말씀해 주실 수 있을까요?", en:"Could you repeat only the key points?", tag:"반복 요청"}
+];
+
+const INTERPRETER_HELP_PHRASES = [
+  {ko:"제가 번역기를 사용해도 될까요?", en:"Can I use a translator?", note:"통역 시작 전"},
+  {ko:"여기에 입력해 주실 수 있나요?", en:"Could you type it here?", note:"상대방 발음이 잘 안 들릴 때"},
+  {ko:"이 화면을 봐 주세요.", en:"Could you look at this screen?", note:"크게 보기"},
+  {ko:"조금 천천히 말씀해 주세요.", en:"Could you speak a little more slowly?", note:"음성 인식용"},
+  {ko:"핵심만 짧게 말씀해 주세요.", en:"Could you summarize the key points briefly?", note:"상담 정리"}
 ];
 
 let interpreterDirection = "ko-en";
 let recognition = null;
 let isListening = false;
 
-const KO_EN_RULES = [
-  [/이 제품의?\s*MOQ.*(어떻게|얼마|몇|궁금)/, "What is the MOQ for this product?"],
-  [/MOQ.*(알려|궁금|확인)/, "Could you tell me the MOQ for this product?"],
-  [/샘플.*(받|가능|있을까요|줄 수)/, "Would it be possible to receive samples?"],
-  [/샘플.*비용/, "Is there a sample fee?"],
+const LOCAL_KO_EN_RULES = [
+  [/MOQ|최소 발주|최소 주문/i, "What is the MOQ for this product?"],
+  [/샘플.*(받|가능|있|줄|요청)/, "Would it be possible to receive samples?"],
+  [/샘플.*(비용|배송)/, "What is the sample fee and how do you arrange sample shipping?"],
   [/(OEM|오이엠).*(가능|하나요|되나요)/i, "Do you offer OEM manufacturing?"],
   [/(ODM|오디엠).*(가능|하나요|되나요)/i, "Do you offer ODM manufacturing?"],
-  [/(OEM|ODM|PB|피비).*(가능|하나요|되나요)/i, "Do you offer OEM, ODM, or private label manufacturing?"],
+  [/(PB|피비|자체 브랜드).*(가능|하나요|되나요)/i, "Is private label production available?"],
   [/패키지.*(커스터마이징|변경|수정|가능)/, "Can the package design be customized?"],
-  [/원료.*(변경|조정|가능)/, "Can the ingredients be adjusted?"],
-  [/함량.*(변경|조정|가능)/, "Can the ingredient amounts be adjusted?"],
-  [/기능성.*(원료|성분).*(변경|조정|가능)/, "Can the functional ingredients be adjusted?"],
-  [/단가.*(알려|공유|궁금)/, "Could you share the approximate price range?"],
-  [/가격.*(알려|공유|궁금)/, "Could you share the approximate price range?"],
-  [/리드타임.*(알려|공유|궁금)/, "Could you share the lead time?"],
-  [/유통기한.*(얼마|어떻게|궁금)/, "What is the shelf life of this product?"],
-  [/보관.*조건/, "What are the recommended storage conditions?"],
-  [/원산지.*(어디|궁금|알려)/, "What is the country of origin for the main ingredients?"],
-  [/인증.*(있|보유|무엇)/, "What certifications do you have?"],
-  [/수출.*(국가|어디|경험)/, "Which countries do you currently export to?"],
+  [/(원료|성분|함량).*(변경|조정|가능)/, "Can the ingredients or their amounts be adjusted?"],
+  [/(단가|가격|견적).*(알려|공유|궁금|가능)/, "Could you share the approximate price range?"],
+  [/리드타임.*(알려|공유|궁금|가능)/, "Could you share the lead time?"],
+  [/(사양서|원료 자료|자료).*(이메일|메일|보내|공유)/, "Could you send the product specification and ingredient documents by email?"],
   [/한국.*(파트너|유통)/, "Do you already have a distribution partner in Korea?"],
-  [/자료.*(이메일|메일).*(보내|공유)/, "Could you send the materials by email?"],
-  [/사양서.*(보내|공유)/, "Could you send the product specification?"],
-  [/원료.*자료.*(보내|공유)/, "Could you send the ingredient documents?"],
-  [/카탈로그.*(보내|공유)/, "Could you send me your product catalog?"],
-  [/온라인.*미팅/, "Could we arrange an online meeting after the exhibition?"],
-  [/천천히.*말/, "Could you speak a little more slowly?"],
-  [/다시.*설명/, "Could you explain that one more time?"],
-  [/정확히.*이해/, "May I check if I understood correctly?"],
-  [/내부.*검토/, "We will review this internally and get back to you."],
-  [/감사.*검토.*연락/, "Thank you. We will review the materials and contact you afterwards."]
+  [/천천히/, "Could you speak a little more slowly?"],
+  [/다시|한 번 더/, "Could you explain that one more time?"],
+  [/내부.*검토/, "We will review this internally and get back to you."]
 ];
 
-const EN_KO_RULES = [
-  [/what.*moq|minimum order quantity/i, "최소 발주 수량은 어느 정도인지 묻는 표현입니다."],
-  [/sample/i, "샘플 제공 가능 여부, 샘플 비용 또는 배송 방식과 관련된 내용입니다."],
+const LOCAL_EN_KO_RULES = [
+  [/moq|minimum order/i, "최소 발주 수량과 관련된 내용입니다."],
+  [/sample/i, "샘플 제공, 샘플 비용 또는 배송 방식과 관련된 내용입니다."],
   [/oem/i, "OEM 생산 가능 여부와 관련된 내용입니다."],
   [/odm/i, "ODM 개발/생산 가능 여부와 관련된 내용입니다."],
   [/private label|pb/i, "PB 또는 자체 브랜드 생산 가능 여부와 관련된 내용입니다."],
-  [/custom/i, "커스터마이징 또는 변경 가능 여부와 관련된 내용입니다."],
-  [/ingredient/i, "원료 또는 성분 자료와 관련된 내용입니다."],
-  [/functional/i, "기능성 원료 또는 기능성 제품 설계와 관련된 내용입니다."],
+  [/custom|customize/i, "커스터마이징 또는 변경 가능 여부와 관련된 내용입니다."],
+  [/ingredient|formula|formulation/i, "원료, 배합 또는 포뮬러와 관련된 내용입니다."],
   [/price|cost|quotation/i, "가격, 단가 또는 견적과 관련된 내용입니다."],
   [/lead time/i, "샘플 또는 생산 리드타임과 관련된 내용입니다."],
-  [/shelf life/i, "유통기한과 관련된 내용입니다."],
-  [/storage/i, "보관 조건과 관련된 내용입니다."],
-  [/certificate|certification|certified/i, "인증 또는 품질 기준과 관련된 내용입니다."],
-  [/export/i, "수출 경험 또는 수출 국가와 관련된 내용입니다."],
+  [/certificate|certification/i, "인증 또는 품질 기준과 관련된 내용입니다."],
   [/distributor|distribution partner/i, "유통 파트너 또는 판매 채널과 관련된 내용입니다."],
-  [/email|send.*material|catalog/i, "이메일로 자료 또는 카탈로그를 보내겠다는 내용입니다."],
-  [/speak.*slow/i, "조금 천천히 말해달라는 표현입니다."],
-  [/explain.*again|one more time/i, "다시 한 번 설명해달라는 표현입니다."]
+  [/email|catalog|document/i, "이메일로 자료 또는 카탈로그를 보내겠다는 내용입니다."],
+  [/slowly|speak slowly/i, "천천히 말해달라는 표현입니다."]
 ];
-
-const KO_EN_FALLBACK = {
-  "안녕하세요": "Hello.",
-  "감사합니다": "Thank you.",
-  "자료": "materials",
-  "샘플": "sample",
-  "단가": "price",
-  "가격": "price",
-  "리드타임": "lead time",
-  "유통기한": "shelf life",
-  "보관 조건": "storage conditions",
-  "원료": "ingredient",
-  "성분": "ingredient",
-  "사양서": "product specification",
-  "인증": "certification",
-  "수출": "export",
-  "한국": "Korea"
-};
 
 let booths = load();
 let editingPhotos = [];
@@ -531,143 +507,252 @@ if ("speechSynthesis" in window && window.speechSynthesis.onvoiceschanged !== un
 
 
 function initInterpreter(){
-  if(!$("interpreterInput")) return;
+  if(!$('interpreterInput')) return;
+  syncTranslatorSettings();
   renderInterpreterShortcuts();
-  document.querySelectorAll("[data-translate-direction]").forEach(btn=>{
-    btn.addEventListener("click", ()=>setInterpreterDirection(btn.dataset.translateDirection));
+  renderInterpreterHelpPhrases();
+
+  document.querySelectorAll('[data-translate-direction]').forEach(btn=>{
+    btn.addEventListener('click', ()=>setInterpreterDirection(btn.dataset.translateDirection));
   });
-  $("swapLangBtn").onclick = () => setInterpreterDirection(interpreterDirection === "ko-en" ? "en-ko" : "ko-en");
-  $("startListenBtn").onclick = () => { showPage("interpreterPage"); toggleInterpreterListening(); };
-  $("listenBtn").onclick = toggleInterpreterListening;
-  $("translateBtn").onclick = runInterpreterTranslate;
-  $("clearInterpreterBtn").onclick = clearInterpreter;
-  $("speakTranslationBtn").onclick = () => speakText($("interpreterOutput").textContent, interpreterDirection === "ko-en" ? 1 : 0.95);
-  $("copyTranslationBtn").onclick = () => copyPhrase($("interpreterOutput").textContent);
-  $("largeTranslationBtn").onclick = () => openPhraseDialog({
-    ko: interpreterDirection === "ko-en" ? ($("interpreterInput").value || "") : ($("interpreterOutput").textContent || ""),
-    en: interpreterDirection === "ko-en" ? ($("interpreterOutput").textContent || "") : ($("interpreterInput").value || ""),
-    note: interpreterDirection === "ko-en" ? "한국어 → 영어" : "English → Korean"
-  });
-  $("interpreterInput").addEventListener("keydown", e=>{
-    if((e.ctrlKey || e.metaKey) && e.key === "Enter") runInterpreterTranslate();
+  $('quickSpeakKoBtn').onclick = () => { showPage('interpreterPage'); setInterpreterDirection('ko-en'); startInterpreterListening(); };
+  $('quickShowInterpreterHelpBtn').onclick = () => {
+    showPage('interpreterPage');
+    const first = INTERPRETER_HELP_PHRASES[0];
+    openPhraseDialog({ko:first.ko, en:first.en, note:first.note});
+  };
+  $('toggleTranslatorSettingsBtn').onclick = () => $('translatorSettings').classList.toggle('hidden');
+  $('saveTranslatorEndpointBtn').onclick = saveTranslatorEndpoint;
+  $('testTranslatorEndpointBtn').onclick = testTranslatorEndpoint;
+  $('clearTranslatorEndpointBtn').onclick = clearTranslatorEndpoint;
+  $('swapLangBtn').onclick = () => setInterpreterDirection(interpreterDirection === 'ko-en' ? 'en-ko' : 'ko-en');
+  $('listenBtn').onclick = startInterpreterListening;
+  $('translateBtn').onclick = translateInterpreterText;
+  $('clearInterpreterBtn').onclick = clearInterpreter;
+  $('speakTranslationBtn').onclick = speakInterpreterOutput;
+  $('copyTranslationBtn').onclick = () => copyPhrase(getInterpreterOutputText());
+  $('largeTranslationBtn').onclick = showInterpreterOutputLarge;
+  $('interpreterInput').addEventListener('keydown', e=>{
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter') translateInterpreterText();
   });
   setInterpreterDirection(interpreterDirection);
 }
-function setInterpreterDirection(direction){
-  interpreterDirection = direction || "ko-en";
-  document.querySelectorAll("[data-translate-direction]").forEach(btn=>btn.classList.toggle("active", btn.dataset.translateDirection === interpreterDirection));
-  if($("sourceLabel")) $("sourceLabel").textContent = interpreterDirection === "ko-en" ? "한국어로 말하거나 입력하세요" : "Speak or type in English";
-  if($("targetLabel")) $("targetLabel").textContent = interpreterDirection === "ko-en" ? "영어 번역" : "한국어 번역";
-  if($("interpreterInput")){
-    $("interpreterInput").placeholder = interpreterDirection === "ko-en"
-      ? "예: 이 제품의 MOQ와 리드타임을 알려주실 수 있을까요?"
-      : "Example: Could you tell me the MOQ and lead time for this product?";
+function getTranslatorEndpoint(){ return (localStorage.getItem(TRANSLATOR_ENDPOINT_KEY) || '').trim(); }
+function setTranslatorEndpoint(url){ localStorage.setItem(TRANSLATOR_ENDPOINT_KEY, String(url || '').trim()); }
+function syncTranslatorSettings(){
+  const endpoint = getTranslatorEndpoint();
+  if($('translatorEndpointInput')) $('translatorEndpointInput').value = endpoint;
+  updateTranslatorModeLabel();
+}
+function updateTranslatorModeLabel(){
+  const endpoint = getTranslatorEndpoint();
+  if(!$('translatorModeLabel')) return;
+  if(endpoint){
+    $('translatorModeLabel').textContent = '앱 내부 번역 모드';
+    $('translatorModeHint').textContent = '저장된 Worker로 번역합니다. 앱 밖으로 이동하지 않습니다.';
+  } else {
+    $('translatorModeLabel').textContent = '오프라인 문장 보조 모드';
+    $('translatorModeHint').textContent = 'Worker 주소를 저장하면 DeepL 기반 앱 내부 번역을 사용할 수 있습니다.';
   }
-  if($("interpreterStatus")) $("interpreterStatus").textContent = interpreterDirection === "ko-en"
-    ? "한국어 문장을 입력하면 전시회 상담용 영어 표현으로 바꿔줍니다."
-    : "영어 문장을 입력하면 핵심 의미를 한국어로 정리합니다.";
+}
+function saveTranslatorEndpoint(){
+  const url = ($('translatorEndpointInput')?.value || '').trim();
+  if(url && !/^https:\/\//i.test(url)){
+    showToast('https://로 시작하는 Worker 주소를 입력해 주세요.');
+    return;
+  }
+  setTranslatorEndpoint(url);
+  updateTranslatorModeLabel();
+  showToast(url ? '번역 Worker 주소를 저장했습니다.' : 'Worker 주소를 비웠습니다.');
+}
+function clearTranslatorEndpoint(){
+  setTranslatorEndpoint('');
+  if($('translatorEndpointInput')) $('translatorEndpointInput').value = '';
+  updateTranslatorModeLabel();
+  showToast('번역 Worker 주소를 삭제했습니다.');
+}
+async function testTranslatorEndpoint(){
+  saveTranslatorEndpoint();
+  const endpoint = getTranslatorEndpoint();
+  if(!endpoint){ showToast('먼저 Worker 주소를 입력해 주세요.'); return; }
+  const old = $('interpreterStatus').textContent;
+  $('interpreterStatus').textContent = '연결 테스트 중...';
+  try{
+    const text = await requestWorkerTranslation('안녕하세요. 샘플을 받을 수 있을까요?', 'KO', 'EN-US');
+    $('interpreterOutput').textContent = text;
+    $('interpreterStatus').textContent = '연결 테스트 성공. 이제 앱 내부 번역을 사용할 수 있습니다.';
+  }catch(e){
+    $('interpreterStatus').textContent = '연결 테스트 실패: ' + e.message;
+    showToast('Worker 연결에 실패했습니다.');
+    setTimeout(()=>{ if($('interpreterStatus')) $('interpreterStatus').textContent = old; }, 4500);
+  }
+}
+function setInterpreterDirection(direction){
+  interpreterDirection = direction || 'ko-en';
+  document.querySelectorAll('[data-translate-direction]').forEach(btn=>btn.classList.toggle('active', btn.dataset.translateDirection === interpreterDirection));
+  if($('sourceLabel')) $('sourceLabel').textContent = interpreterDirection === 'ko-en' ? '한국어로 말하거나 입력하세요' : 'Speak or type in English';
+  if($('targetLabel')) $('targetLabel').textContent = interpreterDirection === 'ko-en' ? '영어 번역' : '한국어 번역';
+  if($('interpreterInput')){
+    $('interpreterInput').placeholder = interpreterDirection === 'ko-en'
+      ? '예: 이 제품의 MOQ와 리드타임을 알려주실 수 있을까요?'
+      : 'Example: Could you tell me the MOQ and lead time for this product?';
+  }
+  $('interpreterStatus').textContent = interpreterDirection === 'ko-en'
+    ? '한국어 문장을 입력하면 영어로 번역합니다.'
+    : '영어 문장을 입력하면 한국어로 번역합니다.';
 }
 function renderInterpreterShortcuts(){
-  const root = $("interpreterShortcuts");
+  const root = $('interpreterShortcuts');
   if(!root) return;
   root.innerHTML = INTERPRETER_SHORTCUTS.map(item=>`
-    <button type="button" class="shortcut-card" data-ko="${escapeHtml(item.ko)}" data-en="${escapeHtml(item.en)}">
+    <button type="button" class="shortcut-card" data-ko="${escapeHtml(item.ko)}" data-en="${escapeHtml(item.en)}" data-tag="${escapeHtml(item.tag||'')}">
+      <small>${escapeHtml(item.tag || '문장')}</small>
       <span>${escapeHtml(item.ko)}</span>
       <strong>${escapeHtml(item.en)}</strong>
-    </button>`).join("");
-  root.querySelectorAll(".shortcut-card").forEach(btn=>btn.addEventListener("click", ()=>{
-    if(interpreterDirection === "ko-en"){
-      $("interpreterInput").value = btn.dataset.ko;
-      $("interpreterOutput").textContent = btn.dataset.en;
+    </button>`).join('');
+  root.querySelectorAll('.shortcut-card').forEach(btn=>btn.addEventListener('click', ()=>{
+    if(interpreterDirection === 'ko-en'){
+      $('interpreterInput').value = btn.dataset.ko;
+      $('interpreterOutput').textContent = btn.dataset.en;
     } else {
-      $("interpreterInput").value = btn.dataset.en;
-      $("interpreterOutput").textContent = btn.dataset.ko;
+      $('interpreterInput').value = btn.dataset.en;
+      $('interpreterOutput').textContent = btn.dataset.ko;
     }
-    showToast("빠른 문장을 불러왔습니다.");
+    $('interpreterStatus').textContent = '빠른 문장을 불러왔습니다. 필요하면 크게 보기 또는 듣기를 사용하세요.';
   }));
 }
-function runInterpreterTranslate(){
-  const input = ($("interpreterInput")?.value || "").trim();
-  if(!input){
-    showToast("통역할 문장을 입력해 주세요.");
-    return;
-  }
-  const output = interpreterDirection === "ko-en" ? translateKoToEn(input) : translateEnToKo(input);
-  $("interpreterOutput").textContent = output;
-  $("interpreterStatus").textContent = "번역 결과를 확인한 뒤, 필요하면 크게 보기 또는 듣기를 사용하세요.";
-}
-function translateKoToEn(text){
-  const normalized = text.replace(/\s+/g, " ").trim();
-  for(const [pattern, result] of KO_EN_RULES){
-    if(pattern.test(normalized)) return result;
-  }
-  const exact = INTERPRETER_SHORTCUTS.find(x => normalized.includes(x.ko.replace(/[?？]/g,"").slice(0,10)) || x.ko.includes(normalized));
-  if(exact) return exact.en;
-
-  let result = normalized;
-  Object.entries(KO_EN_FALLBACK).forEach(([ko,en])=>{
-    result = result.replaceAll(ko, en);
+function renderInterpreterHelpPhrases(){
+  const root = $('interpreterHelpPhrases');
+  if(!root) return;
+  root.innerHTML = INTERPRETER_HELP_PHRASES.map(p=>`<article class="phrase-card card" tabindex="0" role="group">
+    <div class="phrase-note">${escapeHtml(p.note)}</div>
+    <p class="phrase-ko">${escapeHtml(p.ko)}</p>
+    <p class="phrase-en">${escapeHtml(p.en)}</p>
+    <div class="phrase-actions">
+      <button type="button" class="primary copy-mini" data-big-help="${escapeHtml(JSON.stringify(p))}">크게</button>
+      <button type="button" class="secondary copy-mini" data-speak-help="${escapeHtml(p.en)}">듣기</button>
+      <button type="button" class="secondary copy-mini" data-copy-help="${escapeHtml(p.en)}">복사</button>
+    </div>
+  </article>`).join('');
+  root.querySelectorAll('[data-big-help]').forEach(btn=>btn.onclick=()=>{
+    const p = JSON.parse(btn.dataset.bigHelp);
+    openPhraseDialog({ko:p.ko, en:p.en, note:p.note});
   });
-  if(result !== normalized && !/[가-힣]/.test(result)) return result;
-  return `Could you help us with this: ${normalized}`;
+  root.querySelectorAll('[data-speak-help]').forEach(btn=>btn.onclick=()=>speakText(btn.dataset.speakHelp, .86));
+  root.querySelectorAll('[data-copy-help]').forEach(btn=>btn.onclick=()=>copyPhrase(btn.dataset.copyHelp));
 }
-function translateEnToKo(text){
-  const normalized = text.replace(/\s+/g, " ").trim();
-  for(const [pattern, result] of EN_KO_RULES){
-    if(pattern.test(normalized)) return result;
+async function translateInterpreterText(){
+  const input = ($('interpreterInput')?.value || '').trim();
+  if(!input){ showToast('번역할 문장을 입력해 주세요.'); $('interpreterInput')?.focus(); return; }
+  const source = interpreterDirection === 'ko-en' ? 'KO' : 'EN';
+  const target = interpreterDirection === 'ko-en' ? 'EN-US' : 'KO';
+  $('translateBtn').disabled = true;
+  $('translateBtn').textContent = '번역 중...';
+  $('interpreterStatus').textContent = getTranslatorEndpoint() ? 'Worker로 번역 중입니다.' : 'Worker 주소가 없어 문장 보조 모드로 변환합니다.';
+  try{
+    const output = getTranslatorEndpoint()
+      ? await requestWorkerTranslation(input, source, target)
+      : localTranslate(input, source, target);
+    $('interpreterOutput').textContent = output;
+    $('interpreterStatus').textContent = getTranslatorEndpoint() ? '앱 내부 번역 완료.' : '문장 보조 결과입니다. 정확한 번역은 Worker 연결 후 사용하세요.';
+  }catch(e){
+    const output = localTranslate(input, source, target);
+    $('interpreterOutput').textContent = output;
+    $('interpreterStatus').textContent = 'Worker 번역 실패로 문장 보조 결과를 표시했습니다: ' + e.message;
+  }finally{
+    $('translateBtn').disabled = false;
+    $('translateBtn').textContent = '앱 안에서 번역';
   }
-  const exact = INTERPRETER_SHORTCUTS.find(x => normalized.toLowerCase().includes(x.en.toLowerCase().replace(/[?]/g,"").slice(0,16)) || x.en.toLowerCase().includes(normalized.toLowerCase()));
-  if(exact) return exact.ko;
-  return `상대방이 말한 내용: ${normalized}`;
+}
+async function requestWorkerTranslation(text, sourceLang, targetLang){
+  const endpoint = getTranslatorEndpoint();
+  if(!endpoint) throw new Error('Worker 주소가 없습니다.');
+  const res = await fetch(endpoint, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ text, source_lang: sourceLang, target_lang: targetLang })
+  });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+  const translated = data.text || data.translation || data.translatedText || (data.translations && data.translations[0] && data.translations[0].text);
+  if(!translated) throw new Error('번역 결과가 비어 있습니다.');
+  return translated;
+}
+function localTranslate(text, source, target){
+  const normalized = String(text || '').replace(/\s+/g,' ').trim();
+  const rules = source === 'KO' ? LOCAL_KO_EN_RULES : LOCAL_EN_KO_RULES;
+  for(const [pattern, result] of rules){ if(pattern.test(normalized)) return result; }
+  const exact = INTERPRETER_SHORTCUTS.find(x => source === 'KO' ? (x.ko.includes(normalized) || normalized.includes(x.ko.replace(/[?？]/g,'').slice(0,10))) : (x.en.toLowerCase().includes(normalized.toLowerCase()) || normalized.toLowerCase().includes(x.en.toLowerCase().replace(/[?]/g,'').slice(0,14))));
+  if(exact) return source === 'KO' ? exact.en : exact.ko;
+  return source === 'KO' ? `Could you help us with this: ${normalized}` : `상대방이 말한 내용: ${normalized}`;
+}
+function getInterpreterOutputText(){ return ($('interpreterOutput')?.textContent || '').trim().replace('번역 결과가 여기에 표시됩니다.','').trim(); }
+function speakInterpreterOutput(){
+  const text = getInterpreterOutputText();
+  if(!text){ showToast('읽을 번역 결과가 없습니다.'); return; }
+  const lang = interpreterDirection === 'ko-en' ? 'en-US' : 'ko-KR';
+  speakAny(text, lang, interpreterDirection === 'ko-en' ? .9 : 1);
+}
+function speakAny(text, lang='en-US', rate=1){
+  if(!('speechSynthesis' in window)){ showToast('이 브라우저는 듣기를 지원하지 않습니다.'); return; }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = rate;
+  utter.pitch = 1;
+  const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+  const preferred = voices.find(v => (v.lang || '').toLowerCase().startsWith(lang.split('-')[0].toLowerCase())) || voices[0];
+  if(preferred) utter.voice = preferred;
+  window.speechSynthesis.speak(utter);
+  showToast(lang.startsWith('ko') ? '한국어로 읽어드립니다.' : '영어로 읽어드립니다.');
+}
+function showInterpreterOutputLarge(){
+  const output = getInterpreterOutputText();
+  if(!output){ showToast('크게 볼 번역 결과가 없습니다.'); return; }
+  openPhraseDialog({
+    ko: interpreterDirection === 'en-ko' ? output : ($('interpreterInput').value || ''),
+    en: interpreterDirection === 'ko-en' ? output : ($('interpreterInput').value || ''),
+    note: interpreterDirection === 'ko-en' ? '한국어 → 영어' : 'English → Korean'
+  });
 }
 function clearInterpreter(){
-  if($("interpreterInput")) $("interpreterInput").value = "";
-  if($("interpreterOutput")) $("interpreterOutput").textContent = "번역 결과가 여기에 표시됩니다.";
-  if($("interpreterStatus")) setInterpreterDirection(interpreterDirection);
+  if($('interpreterInput')) $('interpreterInput').value = '';
+  if($('interpreterOutput')) $('interpreterOutput').textContent = '번역 결과가 여기에 표시됩니다.';
+  setInterpreterDirection(interpreterDirection);
 }
-function getSpeechRecognition(){
-  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-}
-function toggleInterpreterListening(){
+function getSpeechRecognition(){ return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+function startInterpreterListening(){
   const Recognition = getSpeechRecognition();
   if(!Recognition){
-    showToast("이 브라우저는 음성 인식을 지원하지 않습니다.");
-    if($("interpreterStatus")) $("interpreterStatus").textContent = "음성 인식이 지원되지 않으면 직접 입력 후 번역하기를 눌러주세요.";
+    showToast('앱 내 음성 인식 미지원 · 입력칸에서 키보드 마이크를 사용해 주세요.');
+    $('interpreterInput')?.focus();
+    $('interpreterStatus').textContent = '아이폰은 입력칸을 누른 뒤 키보드 마이크 받아쓰기를 사용하는 방식이 가장 안정적입니다.';
     return;
   }
-  if(isListening && recognition){
-    recognition.stop();
-    return;
-  }
+  if(isListening && recognition){ try{ recognition.stop(); }catch(e){} return; }
   recognition = new Recognition();
-  recognition.lang = interpreterDirection === "ko-en" ? "ko-KR" : "en-US";
+  recognition.lang = interpreterDirection === 'ko-en' ? 'ko-KR' : 'en-US';
   recognition.interimResults = true;
   recognition.continuous = false;
   isListening = true;
-  updateListenButtons(true);
-  if($("interpreterStatus")) $("interpreterStatus").textContent = "듣는 중입니다. 문장을 말해 주세요.";
-  recognition.onresult = event => {
-    let transcript = "";
-    for(let i = event.resultIndex; i < event.results.length; i++){
-      transcript += event.results[i][0].transcript;
-    }
-    if($("interpreterInput")) $("interpreterInput").value = transcript.trim();
-    if(event.results[event.results.length - 1].isFinal) runInterpreterTranslate();
+  $('listenBtn').textContent = '■ 중지';
+  $('interpreterStatus').textContent = '듣는 중입니다. 천천히 말해 주세요.';
+  recognition.onresult = ev=>{
+    let txt = '';
+    for(let i=ev.resultIndex; i<ev.results.length; i++) txt += ev.results[i][0].transcript;
+    $('interpreterInput').value = txt.trim();
   };
-  recognition.onerror = () => {
-    showToast("음성 인식이 중단되었습니다.");
-    if($("interpreterStatus")) $("interpreterStatus").textContent = "음성 인식이 원활하지 않으면 직접 입력해 주세요.";
+  recognition.onerror = ev=>{
+    $('interpreterStatus').textContent = '음성 인식 오류: ' + (ev.error || 'unknown') + '. 직접 입력 또는 키보드 마이크를 사용해 주세요.';
+    showToast('음성 인식이 중단되었습니다.');
   };
-  recognition.onend = () => {
+  recognition.onend = ()=>{
     isListening = false;
-    updateListenButtons(false);
+    $('listenBtn').textContent = '🎙 말하기';
+    if(($('interpreterInput').value || '').trim()) translateInterpreterText();
+    else $('interpreterStatus').textContent = '대기 중입니다.';
   };
-  recognition.start();
-}
-function updateListenButtons(active){
-  const label = active ? "■ 듣기 중지" : "🎙 말하기";
-  if($("listenBtn")) $("listenBtn").textContent = label;
-  if($("startListenBtn")) $("startListenBtn").textContent = active ? "■ 듣기 중지" : "🎙 말하기 시작";
+  try{ recognition.start(); }catch(e){ showToast('음성 인식을 시작하지 못했습니다.'); }
 }
 
 function renderReportTemplates(){

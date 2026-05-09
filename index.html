@@ -173,12 +173,35 @@
       <section class="hero card interpreter-hero">
         <div>
           <p class="eyebrow">다섯 번째 페이지 · 통역</p>
-          <h2 id="interpreterTitle">부스 상담 중 바로 쓰는 간단 통역</h2>
-          <p>말하거나 입력한 문장을 크게 보여주고, 현장에서 자주 쓰는 표현 중심으로 영어/한국어 번역을 보조합니다.</p>
+          <h2 id="interpreterTitle">앱 안에서 바로 번역하는 부스 통역</h2>
+          <p>한국어/영어를 입력하거나 말하면 앱 안에서 번역 결과를 보여주고, 크게 보기·듣기·복사까지 바로 사용할 수 있습니다.</p>
         </div>
         <div class="hero-actions-vertical">
-          <button id="startListenBtn" class="primary big">🎙 말하기 시작</button>
-          <button id="swapLangBtn" class="secondary">언어 전환</button>
+          <button id="quickSpeakKoBtn" class="primary big">🎙 한국어 말하기</button>
+          <button id="quickShowInterpreterHelpBtn" class="secondary">상대방 안내문 보기</button>
+        </div>
+      </section>
+
+      <section class="interpreter-status-card card">
+        <div class="status-row">
+          <div>
+            <p class="eyebrow">Translation Server</p>
+            <h3 id="translatorModeLabel">오프라인 문장 보조 모드</h3>
+            <p id="translatorModeHint" class="hint">DeepL Worker 주소를 저장하면 앱 밖으로 나가지 않고 실제 번역을 사용할 수 있습니다.</p>
+          </div>
+          <button type="button" id="toggleTranslatorSettingsBtn" class="secondary">설정</button>
+        </div>
+        <div id="translatorSettings" class="translator-settings hidden">
+          <label class="interpreter-label compact-label">
+            <span>번역 Worker 주소</span>
+            <input id="translatorEndpointInput" placeholder="https://your-worker.your-subdomain.workers.dev/translate">
+          </label>
+          <div class="button-row wrap">
+            <button type="button" id="saveTranslatorEndpointBtn" class="primary">주소 저장</button>
+            <button type="button" id="testTranslatorEndpointBtn" class="secondary">연결 테스트</button>
+            <button type="button" id="clearTranslatorEndpointBtn" class="secondary">주소 삭제</button>
+          </div>
+          <p class="hint">API 키는 이 앱에 넣지 않습니다. Cloudflare Worker의 Secret으로 저장해야 안전합니다.</p>
         </div>
       </section>
 
@@ -196,13 +219,14 @@
         </div>
 
         <label class="interpreter-label">
-          <span id="sourceLabel">말하거나 입력할 문장</span>
+          <span id="sourceLabel">한국어로 말하거나 입력하세요</span>
           <textarea id="interpreterInput" rows="5" placeholder="예: 이 제품의 MOQ와 리드타임을 알려주실 수 있을까요?"></textarea>
         </label>
 
-        <div class="button-row wrap">
+        <div class="button-row wrap interpreter-main-actions">
           <button id="listenBtn" type="button" class="primary">🎙 말하기</button>
-          <button id="translateBtn" type="button" class="secondary">번역하기</button>
+          <button id="translateBtn" type="button" class="secondary">앱 안에서 번역</button>
+          <button id="swapLangBtn" type="button" class="secondary">방향 전환</button>
           <button id="clearInterpreterBtn" type="button" class="secondary">지우기</button>
         </div>
 
@@ -219,24 +243,34 @@
             </div>
           </div>
           <p id="interpreterOutput" class="translation-text">번역 결과가 여기에 표시됩니다.</p>
-          <p id="interpreterStatus" class="hint">짧은 부스 상담 문장에 맞춘 간단 번역 보조 기능입니다.</p>
+          <p id="interpreterStatus" class="hint">갤럭시는 앱 내 말하기를 먼저 시도하고, 아이폰은 입력칸을 누른 뒤 키보드 마이크 받아쓰기를 함께 사용하면 안정적입니다.</p>
         </div>
       </section>
 
       <section class="interpreter-shortcuts card">
         <div class="section-title compact">
           <div>
-            <p class="eyebrow">빠른 문장</p>
+            <p class="eyebrow">Quick Sentences</p>
             <h2>자주 쓰는 통역 문장</h2>
           </div>
         </div>
         <div id="interpreterShortcuts" class="shortcut-grid"></div>
       </section>
 
+      <section class="interpreter-shortcuts card">
+        <div class="section-title compact">
+          <div>
+            <p class="eyebrow">Show First</p>
+            <h2>상대방에게 먼저 보여줄 문장</h2>
+          </div>
+        </div>
+        <div id="interpreterHelpPhrases" class="compact-phrase-list"></div>
+      </section>
+
       <section class="phrase-tip card">
         <p class="eyebrow">사용 참고</p>
-        <h3>브라우저 번역 API가 아니라, 전시장 상담용 문장 패턴 기반 보조 기능입니다.</h3>
-        <p class="hint">정확한 계약·규제 문구는 현장 확인 후 이메일로 다시 받아 검토하는 것을 권장합니다. 음성 인식은 Chrome/Android에서 비교적 잘 작동하며, iPhone Safari나 일부 설치형 PWA에서는 제한될 수 있습니다.</p>
+        <h3>앱 내부 번역을 쓰려면 Worker 주소 설정이 필요합니다.</h3>
+        <p class="hint">Worker 주소를 저장하기 전에는 빠른 문장과 간단 문장 보조로 작동합니다. Worker를 연결하면 Google 번역을 새 창으로 열지 않고 앱 안에서 결과를 표시합니다.</p>
       </section>
     </section>
 
